@@ -1,0 +1,28 @@
+4-28-2025
+
+This is the original contents of on-chip flash
+
+Make ocd will start OpenOCD, then:
+telnet localhost 4444
+dump_image demo.bin 0x08000000 0x200000
+
+Running imsizer shows this:
+Chunk  0 - valid
+Chunk  1 - valid
+Chunk  2 - valid
+Chunk  3 - empty **
+Chunk  4 - empty **
+Chunk  5 - empty **
+
+So we have 192K of code
+
+Indeed, User LED 3 flashes rapidly as soon as the board is powered by the
+ST-Link cable.
+
+I do this:
+
+mv demo.bin demo.orig
+dd if=demo.orig of=demo.bin bs=64k count=3
+rm demo.orig
+
+
