@@ -5,7 +5,7 @@ DUMP = arm-none-eabi-objdump --disassembler-options=force-thumb -d -z
 
 OCDCFG = -f /usr/share/openocd/scripts/interface/stlink.cfg -f /usr/share/openocd/scripts/target/stm32h7x.cfg
 
-all: wrap imsizer
+all: wrap imsizer longs
 
 ocd:
 	openocd $(OCDCFG)
