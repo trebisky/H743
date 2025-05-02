@@ -77469,6 +77469,8 @@
 0802c360:	5453      	strb	r3, [r2, r1]
 0802c362:	000d      	movs	r5, r1
 
+; Code starts here, then jumps
+; immediately to 0x802b1f1
 0802c364:	4801      	ldr	r0, [pc, #4]	@ (0x802c36c)
 0802c366:	4780      	blx	r0
 0802c368:	4801      	ldr	r0, [pc, #4]	@ (0x802c370)

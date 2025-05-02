@@ -1,0 +1,109 @@
+#!/bin/python
+
+# Plain old python is now Python3 on Fedora 41
+
+# fix32 -- augment 32 bit PC relative constants
+#       in our stm32 thumb disassembly
+#
+# Tom Trebisky   5-1-2025
+
+import re
+
+infile = "demo.txt"
+# This file is 3M in size (78007 lines),
+# but that seems to be no problem at all.
+
+# Here is a typical line we want to mess with
+# note that most whitespace is a tab or a tab and spaces
+# 080002c0:   4f20        ldr r7, [pc, #128]  @ (0x8000344)
+
+# We also have lines like this, I am passing them by.
+# Every one I have seen so far looks like it is in a data section
+#0802c03c:	a1dc      	add	r1, pc, #880	@ (adr r1, 0x802c3b0)
+
+instr = {}
+
+pat44 = r'[0-9a-f]{4} [0-9a-f]{4}'
+
+def process ( line ) :
+    #print ( line )
+    ww = line.split()
+    if len(ww) != 8 :
+        print ( "Trouble 2\n" )
+        exit ()
+    a1 = re.sub ( r'\)$', '', ww[7] )
+    addr1 = re.sub ( r'^\(0x', '0', a1 )
+    print ( addr1 )
+    instr1 = instr[addr1]
+    if re.search ( pat44, instr1 ) :
+        www = instr1.split ( None, 2 )
+        val1 = www[0]
+        val2 = www[1]
+    else :
+        val1 = instr[addr1].split ( None, 1 )[0]
+        next_addr = int ( addr1, 16 ) + 2
+        addr2 = f'0{next_addr:x}'
+        print ( addr2 )
+        val2 = instr[addr2].split ( None, 1 )[0]
+
+    print ( val1 )
+    print ( val2 )
+
+    if len(val1) != 4 or len(val2) != 4 :
+        print ( "Trouble 3\n" )
+        exit ()
+    print ( len(val1) )
+    print ( len(val2) )
+
+    #exit()
+    #print ( len(ww) )
+    #print ( ww[7] )
+    #exit ()
+
+
+count = 0
+
+# Build a hash (dictionary) of all instructions
+with open ( infile, "r" ) as file:
+    for rline in file:
+        count += 1
+        line = rline.strip ()
+        if line == "" :
+            continue
+        if line[0] == ';' :
+            continue
+        #print ( line )
+        parts = line.split ( None,  1 )
+        if len(parts) != 2 :
+            print ( "Trouble 1\n" )
+            exit ()
+        addr = re.sub ( ':$', '', parts[0] )
+        stuff = parts[1]
+        instr[addr] = stuff
+        # print ( instr )
+        # exit ()
+
+#print ( instr )
+#print ( count, " lines" )
+# 78009 lines
+
+#sorted_keys = sorted(instr.keys())
+#for key in sorted_keys :
+#    print ( key, ' --- ', instr[key] )
+
+#key = '0802c8a0'
+#print ( instr[key] )
+
+# This pattern catches both forms
+#patt = r'0x8......\)$'
+# This gets only the ones we want for now.
+# (about 2300 of them)
+patt = r'\(0x8......\)$'
+
+with open ( infile, "r" ) as file:
+    for rline in file:
+        line = rline.strip ()
+        if re.search ( patt, line ) :
+            process ( line )
+
+# THE END
