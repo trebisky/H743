@@ -1,9 +1,20 @@
 /* blink.c
- * (c) Tom Trebisky  9-24-2016
- * (c) Tom Trebisky  11-20-2020
+ * (c) Tom Trebisky  11-20-2020 (F411)
+ * (c) Tom Trebisky  5-2-2025 (H743)
  */
 
-#define STM32F4
+typedef volatile unsigned int vu32;
+
+// #define STM32F1
+// #define STM32F4
+#define STM32F7
+
+/* The F743 Nucleo board has 3 LED:
+ * all are on GPIO B
+ *  LD1 - Green - PB0 (PA5 via alternate jumper)
+ *  LD2 - Orange (yellow) - PB1
+ *  LD3 - Red - PB14
+*/
 
 #ifdef STM32F4
 struct rcc {
@@ -38,6 +49,7 @@ struct rcc {
 	volatile unsigned int dccr;	/* 8c */
 };
 #else
+// STM32F1
 /* The reset and clock control module */
 struct rcc {
 	volatile unsigned long rc;	/* 0 - clock control */
@@ -61,6 +73,7 @@ struct rcc {
 #define GPIOE_ENABLE	0x10
 #define GPIOH_ENABLE	0x80
 #else
+// STM32F1
 #define GPIOA_ENABLE	0x04
 #define GPIOB_ENABLE	0x08
 #define GPIOC_ENABLE	0x10
@@ -69,18 +82,19 @@ struct rcc {
 
 #ifdef STM32F4
 struct gpio {
-	volatile unsigned int mode;	/* 0x00 */
-	volatile unsigned int otype;	/* 0x04 */
-	volatile unsigned int ospeed;	/* 0x08 */
-	volatile unsigned int pupd;	/* 0x0c */
-	volatile unsigned int idata;	/* 0x10 */
-	volatile unsigned int odata;	/* 0x14 */
-	volatile unsigned int bsrr;	/* 0x18 */
-	volatile unsigned int lock;	/* 0x1c */
-	volatile unsigned int afl;	/* 0x20 */
-	volatile unsigned int afh;	/* 0x24 */
+	vu32 mode;		/* 0x00 */
+	vu32 otype;		/* 0x04 */
+	vu32 ospeed;	/* 0x08 */
+	vu32 pupd;		/* 0x0c */
+	vu32 idata;		/* 0x10 */
+	vu32 odata;		/* 0x14 */
+	vu32 bsrr;		/* 0x18 */
+	vu32 lock;		/* 0x1c */
+	vu32 afl;		/* 0x20 */
+	vu32 afh;		/* 0x24 */
 };
 #else
+// STM32F1
 /* One of the 3 gpios */
 struct gpio {
 	volatile unsigned long cr[2];
@@ -92,13 +106,23 @@ struct gpio {
 };
 #endif
 
+#ifdef STM32F7
+#define RCC_BASE	(struct rcc *) 0x58024400
+
+#define GPIOA_BASE	(struct gpio *) 0x58020000
+#define GPIOB_BASE	(struct gpio *) 0x58020400
+#define GPIOC_BASE	(struct gpio *) 0x58020800
+#endif
+
 #ifdef STM32F4
 #define RCC_BASE	(struct rcc *) 0x40023800
 
 #define GPIOA_BASE	(struct gpio *) 0x40020000
 #define GPIOB_BASE	(struct gpio *) 0x40020400
 #define GPIOC_BASE	(struct gpio *) 0x40020800
-#else
+#endif
+
+#ifdef STM32F1
 #define RCC_BASE	(struct rcc *) 0x40021000
 
 #define GPIOA_BASE	(struct gpio *) 0x40010800
@@ -143,6 +167,7 @@ led_init ( int bit )
 	/* Chip powers up with resets not being asserted */
 	rp->ahb1_e |= GPIOC_ENABLE;	/* enable the clock */
 #else
+	// STM32F1
 	/* Turn on GPIO C */
 	rp->ape2 |= GPIOC_ENABLE;
 #endif
@@ -155,6 +180,7 @@ led_init ( int bit )
 	gp->mode |= (1<<shift);
 	gp->otype &= ~(1<<bit);
 #else
+// STM32F1
 	shift = (bit - 8) * 4;
 	conf = gp->cr[1] & ~(0xf<<shift);
 	conf |= (MODE_OUT_2|CONF_GP_OD) << shift;

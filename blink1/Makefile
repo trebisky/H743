@@ -1,19 +1,21 @@
 # Makefile for blink demo
 #
-# This is/was the first code I ever wrote to
-# run on an STM32F411.
+# First code for the H743
+# based on my makefile for F411 bare metal
+# Tom Trebisky  5-2-2-25
 
 TOOLS = arm-none-eabi
 
 # Assembling with gcc makes it want crt0 at link time.
 #AS = $(TOOLS)-gcc
 AS = $(TOOLS)-as
+
 # Use the -g flag if you intend to use gdb
 #CC = $(TOOLS)-gcc -mcpu=cortex-m3 -mthumb
 #CC = $(TOOLS)-gcc -mcpu=cortex-m3 -mthumb -g
-CC = $(TOOLS)-gcc -mcpu=cortex-m3 -mthumb -Os
+CC = $(TOOLS)-gcc -mcpu=cortex-m7 -mthumb -Os
 
-# Optimizing for size works fine and reduces code size from 360 to 252 bytes.
+# Optimizing for size works fine and reduces code size from .....
 
 #LD = $(TOOLS)-gcc
 LD = $(TOOLS)-ld.bfd
@@ -38,7 +40,7 @@ locore.o:	locore.s
 blink.o:	blink.c
 	$(CC) -c blink.c
 
-OCDCFG = -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32f4x.cfg
+OCDCFG = -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32h7x.cfg
 
 flash:  blink.elf
 	openocd $(OCDCFG) -c "program blink.elf verify reset exit"
