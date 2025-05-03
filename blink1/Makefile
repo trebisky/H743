@@ -42,6 +42,9 @@ blink.o:	blink.c
 
 OCDCFG = -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32h7x.cfg
 
+ocd:
+	openocd $(OCDCFG)
+
 flash:  blink.elf
 	openocd $(OCDCFG) -c "program blink.elf verify reset exit"
 

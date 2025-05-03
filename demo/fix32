@@ -8,6 +8,7 @@
 # Tom Trebisky   5-1-2025
 
 import re
+import subprocess
 
 infile = "demo.txt"
 # This file is 3M in size (78007 lines),
@@ -23,10 +24,35 @@ infile = "demo.txt"
 
 instr = {}
 
-pat44 = r'[0-9a-f]{4} [0-9a-f]{4}'
+def get_32 ( addr ) :
+    cmd = [ "./word" ]
+    cmd.append ( addr )
+
+    output = subprocess.run ( cmd, stdout=subprocess.PIPE )
+    stuff = output.stdout.decode ( 'utf-8' ).split ( '\n' )
+    rv = stuff[0]
+    return rv
 
 def process ( line ) :
     #print ( line )
+    # 0800029a:	4d54      	ldr	r5, [pc, #336]	@ (0x80003ec)
+    ww = line.split()
+    if len(ww) != 8 :
+        print ( "Trouble 2\n" )
+        exit ()
+    a1 = re.sub ( r'\)$', '', ww[7] )
+    addr1 = re.sub ( r'^\(0x', '0', a1 )
+    #print ( addr1 )
+    x = get_32 ( addr1 )
+    #print ( x )
+    x = '0x' + x
+    ww = line.split ( '@' )
+    print ( ww[0], "; ", x, ww[1] )
+    #exit ()
+
+def processX ( line ) :
+    pat44 = r'[0-9a-f]{4} [0-9a-f]{4}'
+    print ( line )
     ww = line.split()
     if len(ww) != 8 :
         print ( "Trouble 2\n" )
@@ -35,6 +61,7 @@ def process ( line ) :
     addr1 = re.sub ( r'^\(0x', '0', a1 )
     print ( addr1 )
     instr1 = instr[addr1]
+
     if re.search ( pat44, instr1 ) :
         www = instr1.split ( None, 2 )
         val1 = www[0]
@@ -55,7 +82,8 @@ def process ( line ) :
     print ( len(val1) )
     print ( len(val2) )
 
-    #exit()
+    exit()
+
     #print ( len(ww) )
     #print ( ww[7] )
     #exit ()
@@ -105,5 +133,7 @@ with open ( infile, "r" ) as file:
         line = rline.strip ()
         if re.search ( patt, line ) :
             process ( line )
+        else :
+            print ( line )
 
 # THE END

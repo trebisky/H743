@@ -1,8 +1,8 @@
 /* blink.lds
  * linker script for blink demo.
  *
- * Memory layout on my STM32F473 is like so:
- *  (so we can use this same lds file for F411 and F473,
+ * Memory layout on my STM32H743 is like so:
+ *  (so we can use this same lds file for F411 and H743,
  *   at least for simple things)
  *
  * 0x08000000 - 0x080fffff - Flash bank 1 (1M)
