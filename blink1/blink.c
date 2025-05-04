@@ -206,7 +206,8 @@ gpio_enable ( void )
 	// struct rcc *rp = RCC_BASE;
 	vu32 *en = (vu32 *) AHB4EN;
 
-	*en |= (GPIOA_ENABLE|GPIOA_ENABLE|GPIOA_ENABLE);
+	// *en |= (GPIOA_ENABLE|GPIOA_ENABLE|GPIOA_ENABLE);
+	*en |= (GPIOA_ENABLE|GPIOB_ENABLE|GPIOC_ENABLE);
 
 #ifdef notdef
 	// TRM says these are all zero (not in reset)

@@ -34850,6 +34850,8 @@
 08013032:	b580      	push	{r7, lr}
 08013034:	f003 fd32 	bl	0x8016a9c
 08013038:	bd02      	pop	{r1, pc}
+
+; subroutine Wally
 0801303a:	b510      	push	{r4, lr}
 0801303c:	b086      	sub	sp, #24
 0801303e:	0004      	movs	r4, r0
@@ -34901,26 +34903,31 @@
 080130aa:	9003      	str	r0, [sp, #12]
 080130ac:	200b      	movs	r0, #11
 080130ae:	9005      	str	r0, [sp, #20]
+
 080130b0:	2086      	movs	r0, #134	@ 0x86
 080130b2:	9001      	str	r0, [sp, #4]
 080130b4:	a901      	add	r1, sp, #4
-080130b6:	4881      	ldr	r0, [pc, #516]	 ;  0x58020000  (0x80132bc)
+080130b6:	4881      	ldr	r0, [pc, #516]	 ;  0x58020000  (0x80132bc) -- gpio-A
 080130b8:	f003 fcf6 	bl	0x8016aa8
+
 080130bc:	f44f 5000 	mov.w	r0, #8192	@ 0x2000
 080130c0:	9001      	str	r0, [sp, #4]
 080130c2:	a901      	add	r1, sp, #4
-080130c4:	487e      	ldr	r0, [pc, #504]	 ;  0x58020400  (0x80132c0)
+080130c4:	487e      	ldr	r0, [pc, #504]	 ;  0x58020400  (0x80132c0)	-- gpio-B
 080130c6:	f003 fcef 	bl	0x8016aa8
+
 080130ca:	2032      	movs	r0, #50	@ 0x32
 080130cc:	9001      	str	r0, [sp, #4]
 080130ce:	a901      	add	r1, sp, #4
-080130d0:	487c      	ldr	r0, [pc, #496]	 ;  0x58020800  (0x80132c4)
+080130d0:	487c      	ldr	r0, [pc, #496]	 ;  0x58020800  (0x80132c4)	-- gpio-C
 080130d2:	f003 fce9 	bl	0x8016aa8
+
 080130d6:	f642 0004 	movw	r0, #10244	@ 0x2804
 080130da:	9001      	str	r0, [sp, #4]
 080130dc:	a901      	add	r1, sp, #4
-080130de:	487a      	ldr	r0, [pc, #488]	 ;  0x58021800  (0x80132c8)
+080130de:	487a      	ldr	r0, [pc, #488]	 ;  0x58021800  (0x80132c8) -- gpio-G
 080130e0:	f003 fce2 	bl	0x8016aa8
+
 080130e4:	2200      	movs	r2, #0
 080130e6:	2107      	movs	r1, #7
 080130e8:	203d      	movs	r0, #61	@ 0x3d
@@ -37351,7 +37358,7 @@
 080147fc:	2800      	cmp	r0, #0
 080147fe:	d102      	bne.n	0x8014806
 08014800:	0020      	movs	r0, r4
-08014802:	f7fe fc1a 	bl	0x801303a
+08014802:	f7fe fc1a 	bl	0x801303a		; Wally
 08014806:	2023      	movs	r0, #35	@ 0x23
 08014808:	f884 0051 	strb.w	r0, [r4, #81]	@ 0x51
 0801480c:	f8df 08cc 	ldr.w	r0, [pc, #2252]	@ 0x80150dc
@@ -40792,12 +40799,19 @@
 08016a96:	61c1      	str	r1, [r0, #28]
 08016a98:	4770      	bx	lr
 08016a9a:	0028      	movs	r0, r5
+
+; subroutine
+; fetches and returns whatever is at 0x24008830
 08016a9c:	4801      	ldr	r0, [pc, #4]	 ;  0x24008830  (0x8016aa4)
 08016a9e:	6800      	ldr	r0, [r0, #0]
 08016aa0:	4770      	bx	lr
+
 08016aa2:	bf00      	nop
 08016aa4:	8830      	ldrh	r0, [r6, #0]
 08016aa6:	2400      	movs	r4, #0
+
+; This routine gets called from lots of places with some
+; hardware base address (like gpio-B) in r0
 08016aa8:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
 08016aaa:	f8df 527c 	ldr.w	r5, [pc, #636]	@ 0x8016d28
 08016aae:	2600      	movs	r6, #0
@@ -40941,48 +40955,57 @@
 08016c38:	d101      	bne.n	0x8016c3e
 08016c3a:	2702      	movs	r7, #2
 08016c3c:	e023      	b.n	0x8016c86
-08016c3e:	4a40      	ldr	r2, [pc, #256]	 ;  0x58020c00  (0x8016d40)
+
+; branch to here from just above.
+; figure out which GPIO address is in r0 (D thru J)
+; returning a GPIO index (3-9) in r7
+08016c3e:	4a40      	ldr	r2, [pc, #256]	 ;  0x58020c00  (0x8016d40) -- gpio-D
 08016c40:	4290      	cmp	r0, r2
 08016c42:	d101      	bne.n	0x8016c48
 08016c44:	2703      	movs	r7, #3
 08016c46:	e01e      	b.n	0x8016c86
-08016c48:	4a3e      	ldr	r2, [pc, #248]	 ;  0x58021000  (0x8016d44)
+08016c48:	4a3e      	ldr	r2, [pc, #248]	 ;  0x58021000  (0x8016d44) -- gpio-E
 08016c4a:	4290      	cmp	r0, r2
 08016c4c:	d101      	bne.n	0x8016c52
 08016c4e:	2704      	movs	r7, #4
 08016c50:	e019      	b.n	0x8016c86
-08016c52:	4a3d      	ldr	r2, [pc, #244]	 ;  0x58021400  (0x8016d48)
+08016c52:	4a3d      	ldr	r2, [pc, #244]	 ;  0x58021400  (0x8016d48) -- gpio-F
 08016c54:	4290      	cmp	r0, r2
 08016c56:	d101      	bne.n	0x8016c5c
 08016c58:	2705      	movs	r7, #5
 08016c5a:	e014      	b.n	0x8016c86
-08016c5c:	4a3b      	ldr	r2, [pc, #236]	 ;  0x58021800  (0x8016d4c)
+08016c5c:	4a3b      	ldr	r2, [pc, #236]	 ;  0x58021800  (0x8016d4c) -- gpio-G
 08016c5e:	4290      	cmp	r0, r2
 08016c60:	d101      	bne.n	0x8016c66
 08016c62:	2706      	movs	r7, #6
 08016c64:	e00f      	b.n	0x8016c86
-08016c66:	4a3a      	ldr	r2, [pc, #232]	 ;  0x58021c00  (0x8016d50)
+08016c66:	4a3a      	ldr	r2, [pc, #232]	 ;  0x58021c00  (0x8016d50) -- gpio-H
 08016c68:	4290      	cmp	r0, r2
 08016c6a:	d101      	bne.n	0x8016c70
 08016c6c:	2707      	movs	r7, #7
 08016c6e:	e00a      	b.n	0x8016c86
-08016c70:	4a38      	ldr	r2, [pc, #224]	 ;  0x58022000  (0x8016d54)
+08016c70:	4a38      	ldr	r2, [pc, #224]	 ;  0x58022000  (0x8016d54) -- gpio-I
 08016c72:	4290      	cmp	r0, r2
 08016c74:	d101      	bne.n	0x8016c7a
 08016c76:	2708      	movs	r7, #8
 08016c78:	e005      	b.n	0x8016c86
-08016c7a:	4a37      	ldr	r2, [pc, #220]	 ;  0x58022400  (0x8016d58)
+08016c7a:	4a37      	ldr	r2, [pc, #220]	 ;  0x58022400  (0x8016d58) -- gpio-J
 08016c7c:	4290      	cmp	r0, r2
 08016c7e:	d101      	bne.n	0x8016c84
 08016c80:	2709      	movs	r7, #9
 08016c82:	e000      	b.n	0x8016c86
-08016c84:	270a      	movs	r7, #10
+08016c84:	270a      	movs	r7, #10		; else 10 (K)
+
 08016c86:	b2ff      	uxtb	r7, r7
 08016c88:	f016 0203 	ands.w	r2, r6, #3
 08016c8c:	b2d2      	uxtb	r2, r2
 08016c8e:	0092      	lsls	r2, r2, #2
 08016c90:	4097      	lsls	r7, r2
 08016c92:	ea57 0c0c 	orrs.w	ip, r7, ip
+; A sysconfig register (see section 12 in TRM)
+; This is sysconfig external interrupt config register.
+; We have an array of them, starting at this address.
+; Each one controls 4 extI with 4 bits per interrupt
 08016c96:	4a26      	ldr	r2, [pc, #152]	 ;  0x58000408  (0x8016d30)
 08016c98:	0037      	movs	r7, r6
 08016c9a:	08bf      	lsrs	r7, r7, #2
@@ -41001,6 +41024,7 @@
 08016cba:	d500      	bpl.n	0x8016cbe
 08016cbc:	4327      	orrs	r7, r4
 08016cbe:	606f      	str	r7, [r5, #4]
+; Base address here is EXTI registers (see section 20 in TRM)
 08016cc0:	f05f 42b0 	movs.w	r2, #1476395008	@ 0x58000000
 08016cc4:	6812      	ldr	r2, [r2, #0]
 08016cc6:	43a2      	bics	r2, r4
@@ -44370,6 +44394,7 @@
 08018ed6:	7820      	ldrb	r0, [r4, #0]
 08018ed8:	0740      	lsls	r0, r0, #29
 08018eda:	d56c      	bpl.n	0x8018fb6
+; Power control reg
 08018edc:	488e      	ldr	r0, [pc, #568]	 ;  0x58024800  (0x8019118)
 08018ede:	6800      	ldr	r0, [r0, #0]
 08018ee0:	f450 7080 	orrs.w	r0, r0, #256	@ 0x100
@@ -48132,6 +48157,7 @@
 0801b1e6:	f881 20f0 	strb.w	r2, [r1, #240]	@ 0xf0
 0801b1ea:	e7eb      	b.n	0x801b1c4
 0801b1ec:	4770      	bx	lr
+
 0801b1ee:	0001      	movs	r1, r0
 0801b1f0:	2900      	cmp	r1, #0
 0801b1f2:	d011      	beq.n	0x801b218
@@ -48155,22 +48181,30 @@
 0801b216:	e000      	b.n	0x801b21a
 0801b218:	2000      	movs	r0, #0
 0801b21a:	4770      	bx	lr
+
+; subroutine, many calls
 0801b21c:	2200      	movs	r2, #0
 0801b21e:	f7f7 baa3 	b.w	0x8012768
 0801b222:	0000      	movs	r0, r0
 0801b224:	b518      	push	{r3, r4, lr}
 0801b226:	b0b5      	sub	sp, #212	@ 0xd4
 0801b228:	0004      	movs	r4, r0
+; This is the ahb4 clock enable register in the TCC
+; set the bit to enable gpio-D
 0801b22a:	48a3      	ldr	r0, [pc, #652]	 ;  0x580244e0  (0x801b4b8)
 0801b22c:	6800      	ldr	r0, [r0, #0]
 0801b22e:	f050 0008 	orrs.w	r0, r0, #8
 0801b232:	49a1      	ldr	r1, [pc, #644]	 ;  0x580244e0  (0x801b4b8)
 0801b234:	6008      	str	r0, [r1, #0]
+
+; now get that bit that we just set
 0801b236:	48a0      	ldr	r0, [pc, #640]	 ;  0x580244e0  (0x801b4b8)
 0801b238:	6800      	ldr	r0, [r0, #0]
 0801b23a:	f010 0008 	ands.w	r0, r0, #8
 0801b23e:	9000      	str	r0, [sp, #0]
-0801b240:	9800      	ldr	r0, [sp, #0]
+
+0801b240:	9800      	ldr	r0, [sp, #0]	; silly
+
 0801b242:	f44f 7080 	mov.w	r0, #256	@ 0x100
 0801b246:	9001      	str	r0, [sp, #4]
 0801b248:	2000      	movs	r0, #0
@@ -48181,75 +48215,97 @@
 0801b252:	9003      	str	r0, [sp, #12]
 0801b254:	2007      	movs	r0, #7
 0801b256:	9005      	str	r0, [sp, #20]
+
+; fool with gpio-D registers
 0801b258:	a901      	add	r1, sp, #4
-0801b25a:	4898      	ldr	r0, [pc, #608]	 ;  0x58020c00  (0x801b4bc)
+0801b25a:	4898      	ldr	r0, [pc, #608]	 ;  0x58020c00  (0x801b4bc) -- gpio-D
 0801b25c:	f7fb fc24 	bl	0x8016aa8
 0801b260:	f44f 7000 	mov.w	r0, #512	@ 0x200
 0801b264:	9001      	str	r0, [sp, #4]
 0801b266:	a901      	add	r1, sp, #4
-0801b268:	4894      	ldr	r0, [pc, #592]	 ;  0x58020c00  (0x801b4bc)
+0801b268:	4894      	ldr	r0, [pc, #592]	 ;  0x58020c00  (0x801b4bc) -- gpio-D
 0801b26a:	f7fb fc1d 	bl	0x8016aa8
+
 0801b26e:	2002      	movs	r0, #2
 0801b270:	9006      	str	r0, [sp, #24]
 0801b272:	2000      	movs	r0, #0
 0801b274:	9023      	str	r0, [sp, #140]	@ 0x8c
 0801b276:	a806      	add	r0, sp, #24
 0801b278:	f001 f99a 	bl	0x801c5b0
+
+; Now fool with the RCC apb1 clock register
+; enable usart-3
 0801b27c:	4890      	ldr	r0, [pc, #576]	 ;  0x580244e8  (0x801b4c0)
 0801b27e:	6800      	ldr	r0, [r0, #0]
-0801b280:	f450 2080 	orrs.w	r0, r0, #262144	@ 0x40000
+0801b280:	f450 2080 	orrs.w	r0, r0, #0x40000
 0801b284:	498e      	ldr	r1, [pc, #568]	 ;  0x580244e8  (0x801b4c0)
 0801b286:	6008      	str	r0, [r1, #0]
 0801b288:	488d      	ldr	r0, [pc, #564]	 ;  0x580244e8  (0x801b4c0)
 0801b28a:	6800      	ldr	r0, [r0, #0]
-0801b28c:	f410 2080 	ands.w	r0, r0, #262144	@ 0x40000
+0801b28c:	f410 2080 	ands.w	r0, r0, #0x40000
 0801b290:	9000      	str	r0, [sp, #0]
-0801b292:	9800      	ldr	r0, [sp, #0]
+0801b292:	9800      	ldr	r0, [sp, #0]	; silly - we will immediately overwrite
+
+; Fool with the RCC apb1 reset register
+; pulse the usart-3 reset
 0801b294:	488b      	ldr	r0, [pc, #556]	 ;  0x58024490  (0x801b4c4)
 0801b296:	6800      	ldr	r0, [r0, #0]
-0801b298:	f450 2080 	orrs.w	r0, r0, #262144	@ 0x40000
+0801b298:	f450 2080 	orrs.w	r0, r0, #0x40000
 0801b29c:	4989      	ldr	r1, [pc, #548]	 ;  0x58024490  (0x801b4c4)
 0801b29e:	6008      	str	r0, [r1, #0]
 0801b2a0:	4888      	ldr	r0, [pc, #544]	 ;  0x58024490  (0x801b4c4)
 0801b2a2:	6800      	ldr	r0, [r0, #0]
-0801b2a4:	f430 2080 	bics.w	r0, r0, #262144	@ 0x40000
+0801b2a4:	f430 2080 	bics.w	r0, r0, #0x40000
 0801b2a8:	4986      	ldr	r1, [pc, #536]	 ;  0x58024490  (0x801b4c4)
 0801b2aa:	6008      	str	r0, [r1, #0]
-0801b2ac:	4886      	ldr	r0, [pc, #536]	 ;  0x40004800  (0x801b4c8)
-0801b2ae:	4987      	ldr	r1, [pc, #540]	 ;  0x24008288  (0x801b4cc)
+
+; 0x24008288 is some kind of structure	-- struct-SIO
+0801b2ac:	4886      	ldr	r0, [pc, #536]	 ;  0x40004800  (0x801b4c8) - usart3
+0801b2ae:	4987      	ldr	r1, [pc, #540]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2b0:	6008      	str	r0, [r1, #0]
-0801b2b2:	4886      	ldr	r0, [pc, #536]	 ;  0x24008288  (0x801b4cc)
+
+0801b2b2:	4886      	ldr	r0, [pc, #536]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2b4:	6044      	str	r4, [r0, #4]
+
 0801b2b6:	2000      	movs	r0, #0
-0801b2b8:	4984      	ldr	r1, [pc, #528]	 ;  0x24008288  (0x801b4cc)
+0801b2b8:	4984      	ldr	r1, [pc, #528]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2ba:	6088      	str	r0, [r1, #8]
+
 0801b2bc:	2000      	movs	r0, #0
-0801b2be:	4983      	ldr	r1, [pc, #524]	 ;  0x24008288  (0x801b4cc)
+0801b2be:	4983      	ldr	r1, [pc, #524]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2c0:	60c8      	str	r0, [r1, #12]
+
 0801b2c2:	2000      	movs	r0, #0
-0801b2c4:	4981      	ldr	r1, [pc, #516]	 ;  0x24008288  (0x801b4cc)
+0801b2c4:	4981      	ldr	r1, [pc, #516]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2c6:	6108      	str	r0, [r1, #16]
+
 0801b2c8:	2000      	movs	r0, #0
-0801b2ca:	4980      	ldr	r1, [pc, #512]	 ;  0x24008288  (0x801b4cc)
+0801b2ca:	4980      	ldr	r1, [pc, #512]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2cc:	6188      	str	r0, [r1, #24]
+
 0801b2ce:	200c      	movs	r0, #12
-0801b2d0:	497e      	ldr	r1, [pc, #504]	 ;  0x24008288  (0x801b4cc)
+0801b2d0:	497e      	ldr	r1, [pc, #504]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2d2:	6148      	str	r0, [r1, #20]
-0801b2d4:	487d      	ldr	r0, [pc, #500]	 ;  0x24008288  (0x801b4cc)
+
+0801b2d4:	487d      	ldr	r0, [pc, #500]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b2d6:	f002 fc53 	bl	0x801db80
-0801b2da:	487b      	ldr	r0, [pc, #492]	 ;  0x40004800  (0x801b4c8)
+
+; Set the enable bit in the usart CR1 register!
+0801b2da:	487b      	ldr	r0, [pc, #492]	 ;  0x40004800  (0x801b4c8) - usart3
 0801b2dc:	6800      	ldr	r0, [r0, #0]
 0801b2de:	f050 0001 	orrs.w	r0, r0, #1
-0801b2e2:	4979      	ldr	r1, [pc, #484]	 ;  0x40004800  (0x801b4c8)
+0801b2e2:	4979      	ldr	r1, [pc, #484]	 ;  0x40004800  (0x801b4c8) - usart3
 0801b2e4:	6008      	str	r0, [r1, #0]
+
 0801b2e6:	b036      	add	sp, #216	@ 0xd8
-0801b2e8:	bd10      	pop	{r4, pc}
+0801b2e8:	bd10      	pop	{r4, pc}		; return
+
 0801b2ea:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
 0801b2ec:	0004      	movs	r4, r0
 0801b2ee:	000d      	movs	r5, r1
-0801b2f0:	4877      	ldr	r0, [pc, #476]	 ;  0x4000481c  (0x801b4d0)
+0801b2f0:	4877      	ldr	r0, [pc, #476]	 ;  0x4000481c  (0x801b4d0) - usart3
 0801b2f2:	6800      	ldr	r0, [r0, #0]
-0801b2f4:	4977      	ldr	r1, [pc, #476]	 ;  0x40004824  (0x801b4d4)
+0801b2f4:	4977      	ldr	r1, [pc, #476]	 ;  0x40004824  (0x801b4d4) - usart3
 0801b2f6:	8809      	ldrh	r1, [r1, #0]
 0801b2f8:	2700      	movs	r7, #0
 0801b2fa:	0038      	movs	r0, r7
@@ -48264,11 +48320,11 @@
 0801b30c:	0038      	movs	r0, r7
 0801b30e:	b280      	uxth	r0, r0
 0801b310:	eb04 0100 	add.w	r1, r4, r0
-0801b314:	486d      	ldr	r0, [pc, #436]	 ;  0x24008288  (0x801b4cc)
+0801b314:	486d      	ldr	r0, [pc, #436]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b316:	f002 fc72 	bl	0x801dbfe
 0801b31a:	2000      	movs	r0, #0
 0801b31c:	0006      	movs	r6, r0
-0801b31e:	486c      	ldr	r0, [pc, #432]	 ;  0x4000481c  (0x801b4d0)
+0801b31e:	486c      	ldr	r0, [pc, #432]	 ;  0x4000481c  (0x801b4d0) - usart3
 0801b320:	6800      	ldr	r0, [r0, #0]
 0801b322:	0640      	lsls	r0, r0, #25
 0801b324:	d408      	bmi.n	0x801b338
@@ -48291,17 +48347,17 @@
 0801b348:	0029      	movs	r1, r5
 0801b34a:	b2c9      	uxtb	r1, r1
 0801b34c:	5460      	strb	r0, [r4, r1]
-0801b34e:	485f      	ldr	r0, [pc, #380]	 ;  0x24008288  (0x801b4cc)
+0801b34e:	485f      	ldr	r0, [pc, #380]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b350:	6800      	ldr	r0, [r0, #0]
 0801b352:	69c0      	ldr	r0, [r0, #28]
 0801b354:	0680      	lsls	r0, r0, #26
 0801b356:	d542      	bpl.n	0x801b3de
-0801b358:	485c      	ldr	r0, [pc, #368]	 ;  0x24008288  (0x801b4cc)
+0801b358:	485c      	ldr	r0, [pc, #368]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b35a:	6800      	ldr	r0, [r0, #0]
 0801b35c:	69c0      	ldr	r0, [r0, #28]
 0801b35e:	0680      	lsls	r0, r0, #26
 0801b360:	d5fa      	bpl.n	0x801b358
-0801b362:	485c      	ldr	r0, [pc, #368]	 ;  0x40004824  (0x801b4d4)
+0801b362:	485c      	ldr	r0, [pc, #368]	 ;  0x40004824  (0x801b4d4) - usart3
 0801b364:	8800      	ldrh	r0, [r0, #0]
 0801b366:	f88d 0000 	strb.w	r0, [sp]
 0801b36a:	f89d 0000 	ldrb.w	r0, [sp]
@@ -48354,7 +48410,7 @@
 0801b3d0:	2364      	movs	r3, #100	@ 0x64
 0801b3d2:	2201      	movs	r2, #1
 0801b3d4:	4669      	mov	r1, sp
-0801b3d6:	483d      	ldr	r0, [pc, #244]	 ;  0x24008288  (0x801b4cc)
+0801b3d6:	483d      	ldr	r0, [pc, #244]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b3d8:	f002 fc11 	bl	0x801dbfe
 0801b3dc:	e7bc      	b.n	0x801b358
 0801b3de:	bd31      	pop	{r0, r4, r5, pc}
@@ -48364,7 +48420,7 @@
 0801b3e6:	f64f 73ff 	movw	r3, #65535	@ 0xffff
 0801b3ea:	2201      	movs	r2, #1
 0801b3ec:	a901      	add	r1, sp, #4
-0801b3ee:	4837      	ldr	r0, [pc, #220]	 ;  0x24008288  (0x801b4cc)
+0801b3ee:	4837      	ldr	r0, [pc, #220]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b3f0:	f002 fc05 	bl	0x801dbfe
 0801b3f4:	9801      	ldr	r0, [sp, #4]
 0801b3f6:	bd16      	pop	{r1, r2, r4, pc}
@@ -48454,7 +48510,7 @@
 0801b4c2:	5802      	ldr	r2, [r0, r0]
 0801b4c4:	4490      	add	r8, r2
 0801b4c6:	5802      	ldr	r2, [r0, r0]
-0801b4c8:	4800      	ldr	r0, [pc, #0]	 ;  0x24008288  (0x801b4cc)
+0801b4c8:	4800      	ldr	r0, [pc, #0]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
 0801b4ca:	4000      	ands	r0, r0
 0801b4cc:	8288      	strh	r0, [r1, #20]
 0801b4ce:	2400      	movs	r4, #0
@@ -48493,6 +48549,7 @@
 0801b514:	d202      	bcs.n	0x801b51c
 0801b516:	f04f 30ff 	mov.w	r0, #4294967295	@ 0xffffffff
 0801b51a:	4770      	bx	lr
+
 0801b51c:	2001      	movs	r0, #1
 0801b51e:	4770      	bx	lr
 0801b520:	2000      	movs	r0, #0
@@ -49219,6 +49276,8 @@
 0801bd62:	0000      	movs	r0, r0
 0801bd64:	0d20      	lsrs	r0, r4, #20
 0801bd66:	000a      	movs	r2, r1
+
+; subroutine
 0801bd68:	b500      	push	{lr}
 0801bd6a:	b085      	sub	sp, #20
 0801bd6c:	f000 f988 	bl	0x801c080
@@ -49352,6 +49411,7 @@
 0801bf00:	2000      	movs	r0, #0
 0801bf02:	f002 fcd2 	bl	0x801e8aa
 0801bf06:	bd01      	pop	{r0, pc}
+
 0801bf08:	b510      	push	{r4, lr}
 0801bf0a:	0004      	movs	r4, r0
 0801bf0c:	2100      	movs	r1, #0
@@ -49415,6 +49475,7 @@
 0801bfb0:	f8df 0378 	ldr.w	r0, [pc, #888]	@ 0x801c32c
 0801bfb4:	6800      	ldr	r0, [r0, #0]
 0801bfb6:	f030 0004 	bics.w	r0, r0, #4
+; Power control reg
 0801bfba:	49dc      	ldr	r1, [pc, #880]	 ;  0x5802480c  (0x801c32c)
 0801bfbc:	6008      	str	r0, [r1, #0]
 0801bfbe:	2000      	movs	r0, #0
@@ -49824,6 +49885,8 @@
 0801c356:	5802      	ldr	r2, [r0, r0]
 0801c358:	0367      	lsls	r7, r4, #13
 0801c35a:	070e      	lsls	r6, r1, #28
+
+; subroutine, called with string
 0801c35c:	b40e      	push	{r1, r2, r3}
 0801c35e:	b5c0      	push	{r6, r7, lr}
 0801c360:	4602      	mov	r2, r0
@@ -49840,7 +49903,9 @@
 0801c378:	bc06      	pop	{r1, r2}
 0801c37a:	f85d fb10 	ldr.w	pc, [sp], #16
 0801c37e:	bf00      	nop
-0801c380:	fc19 0000 			@ <UNDEFINED> instruction: 0xfc190000
+
+0801c380:	fc19 0000
+
 0801c384:	ea5f 0c00 	movs.w	ip, r0
 0801c388:	ea80 0301 	eor.w	r3, r0, r1
 0801c38c:	079b      	lsls	r3, r3, #30
@@ -52146,24 +52211,30 @@
 0801db7a:	0019      	movs	r1, r3
 0801db7c:	8204      	strh	r4, [r0, #16]
 0801db7e:	2400      	movs	r4, #0
+
+; Called with r0 pointing to some kind of Uart control structure
 0801db80:	b510      	push	{r4, lr}
 0801db82:	0004      	movs	r4, r0
 0801db84:	2c00      	cmp	r4, #0
-0801db86:	d101      	bne.n	0x801db8c
-0801db88:	2001      	movs	r0, #1
+
+0801db86:	d101      	bne.n	0x801db8c	; is pointer valid?
+0801db88:	2001      	movs	r0, #1		; return 1
 0801db8a:	e037      	b.n	0x801dbfc
+
 0801db8c:	69a0      	ldr	r0, [r4, #24]
 0801db8e:	2800      	cmp	r0, #0
-0801db90:	d1ff      	bne.n	0x801db92
+0801db90:	d1ff      	bne.n	0x801db92		; silly
+
 0801db92:	f894 0079 	ldrb.w	r0, [r4, #121]	@ 0x79
 0801db96:	2800      	cmp	r0, #0
 0801db98:	d105      	bne.n	0x801dba6
 0801db9a:	2000      	movs	r0, #0
 0801db9c:	f884 0078 	strb.w	r0, [r4, #120]	@ 0x78
 0801dba0:	0020      	movs	r0, r4
-0801dba2:	f000 fdc7 	bl	0x801e734
+0801dba2:	f000 fdc7 	bl	0x801e734		; stub routine
 0801dba6:	2024      	movs	r0, #36	@ 0x24
 0801dba8:	f884 0079 	strb.w	r0, [r4, #121]	@ 0x79
+
 0801dbac:	6820      	ldr	r0, [r4, #0]
 0801dbae:	6800      	ldr	r0, [r0, #0]
 0801dbb0:	0840      	lsrs	r0, r0, #1
@@ -52199,6 +52270,7 @@
 0801dbf6:	0020      	movs	r0, r4
 0801dbf8:	f000 fd2f 	bl	0x801e65a
 0801dbfc:	bd10      	pop	{r4, pc}
+
 0801dbfe:	e92d 47fc 	stmdb	sp!, {r2, r3, r4, r5, r6, r7, r8, r9, sl, lr}
 0801dc02:	0006      	movs	r6, r0
 0801dc04:	000c      	movs	r4, r1
@@ -52284,6 +52356,8 @@
 0801dccc:	e000      	b.n	0x801dcd0
 0801dcce:	2002      	movs	r0, #2
 0801dcd0:	e8bd 87f6 	ldmia.w	sp!, {r1, r2, r4, r5, r6, r7, r8, r9, sl, pc}
+
+; subroutine, one call
 0801dcd4:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
 0801dcd8:	b086      	sub	sp, #24
 0801dcda:	0005      	movs	r5, r0
@@ -53386,7 +53460,10 @@
 0801e72c:	e000      	b.n	0x801e730
 0801e72e:	2000      	movs	r0, #0
 0801e730:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+
+; stub
 0801e734:	4770      	bx	lr
+
 0801e736:	0000      	movs	r0, r0
 0801e738:	ea81 0300 	eor.w	r3, r1, r0
 0801e73c:	079b      	lsls	r3, r3, #30
@@ -53640,6 +53717,7 @@
 0801e9a6:	bd70      	pop	{r4, r5, r6, pc}
 0801e9a8:	02a1      	lsls	r1, r4, #10
 0801e9aa:	2400      	movs	r4, #0
+; Power control reg
 0801e9ac:	4803      	ldr	r0, [pc, #12]	 ;  0x5802480c  (0x801e9bc)
 0801e9ae:	6800      	ldr	r0, [r0, #0]
 0801e9b0:	f050 7080 	orrs.w	r0, r0, #16777216	@ 0x1000000
@@ -53669,6 +53747,7 @@
 0801e9e4:	f803 2c04 	strb.w	r2, [r3, #-4]
 0801e9e8:	bc10      	pop	{r4}
 0801e9ea:	4770      	bx	lr
+
 0801e9ec:	b510      	push	{r4, lr}
 0801e9ee:	0004      	movs	r4, r0
 0801e9f0:	1e60      	subs	r0, r4, #1
@@ -53724,7 +53803,7 @@
 0801ea62:	4966      	ldr	r1, [pc, #408]	 ;  0x24008644  (0x801ebfc)
 0801ea64:	6108      	str	r0, [r1, #16]
 0801ea66:	4965      	ldr	r1, [pc, #404]	 ;  0x24008644  (0x801ebfc)
-0801ea68:	4865      	ldr	r0, [pc, #404]	 ;  0x58020000  (0x801ec00)
+0801ea68:	4865      	ldr	r0, [pc, #404]	 ;  0x58020000  (0x801ec00) -- gpio-A
 0801ea6a:	f7f8 f81d 	bl	0x8016aa8
 0801ea6e:	f45f 1280 	movs.w	r2, #1048576	@ 0x100000
 0801ea72:	f45f 0140 	movs.w	r1, #12582912	@ 0xc00000
@@ -53744,7 +53823,7 @@
 0801ea9e:	4957      	ldr	r1, [pc, #348]	 ;  0x24008644  (0x801ebfc)
 0801eaa0:	6048      	str	r0, [r1, #4]
 0801eaa2:	4956      	ldr	r1, [pc, #344]	 ;  0x24008644  (0x801ebfc)
-0801eaa4:	4856      	ldr	r0, [pc, #344]	 ;  0x58020000  (0x801ec00)
+0801eaa4:	4856      	ldr	r0, [pc, #344]	 ;  0x58020000  (0x801ec00) -- gpio-A
 0801eaa6:	f7f7 ffff 	bl	0x8016aa8
 0801eaaa:	4853      	ldr	r0, [pc, #332]	 ;  0x580244e0  (0x801ebf8)
 0801eaac:	6800      	ldr	r0, [r0, #0]
@@ -56535,12 +56614,20 @@
 080204a0:	2002      	movs	r0, #2
 080204a2:	f7fe f9e2 	bl	0x801e86a
 080204a6:	4942      	ldr	r1, [pc, #264]	 ;  0x240086c8  (0x80205b0)
+
+; STR - this is the string at 0x0802b814
+; " ETHERNET TEST(HTML %s displayed y/n?)"
 080204a8:	4844      	ldr	r0, [pc, #272]	 ;  0x0802b814  (0x80205bc)
 080204aa:	f7fb ff57 	bl	0x801c35c
+
+; get magic address
 080204ae:	f7f6 faf5 	bl	0x8016a9c
+
+; replace at that address
 080204b2:	4943      	ldr	r1, [pc, #268]	 ;  0x240087c0  (0x80205c0)
 080204b4:	6008      	str	r0, [r1, #0]
 080204b6:	e03a      	b.n	0x802052e
+
 080204b8:	4842      	ldr	r0, [pc, #264]	 ;  0x240088e4  (0x80205c4)
 080204ba:	7800      	ldrb	r0, [r0, #0]
 080204bc:	2801      	cmp	r0, #1
@@ -56589,6 +56676,7 @@
 08020524:	f7fe f98f 	bl	0x801e846
 08020528:	2002      	movs	r0, #2
 0802052a:	f7fe f99e 	bl	0x801e86a
+
 0802052e:	e023      	b.n	0x8020578
 08020530:	0030      	movs	r0, r6
 08020532:	f7fa fa9f 	bl	0x801aa74
@@ -56669,20 +56757,22 @@
 080205da:	0100      	lsls	r0, r0, #4
 080205dc:	be60      	bkpt	0x0060
 080205de:	0802      	lsrs	r2, r0, #32
+
+; subroutine
 080205e0:	e92d 4ff8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
 080205e4:	f20f 17d0 	addw	r7, pc, #464	@ 0x1d0
 080205e8:	b0a2      	sub	sp, #136	@ 0x88
 080205ea:	e9d7 4500 	ldrd	r4, r5, [r7]
 080205ee:	e9cd 4500 	strd	r4, r5, [sp]
 080205f2:	9e2c      	ldr	r6, [sp, #176]	@ 0xb0
-080205f4:	f8df 7c2c 	ldr.w	r7, [pc, #3116]	@ 0x8021224
+080205f4:	f8df 7c2c 	ldr.w	r7, [pc, #3116]	@ 0x8021224 (0ccc_cccb)
 080205f8:	9104      	str	r1, [sp, #16]
 080205fa:	f88d 6043 	strb.w	r6, [sp, #67]	@ 0x43
 080205fe:	2100      	movs	r1, #0
 08020600:	f20f 14bc 	addw	r4, pc, #444	@ 0x1bc
 08020604:	910d      	str	r1, [sp, #52]	@ 0x34
 08020606:	9412      	str	r4, [sp, #72]	@ 0x48
-08020608:	f04f 36ff 	mov.w	r6, #4294967295	@ 0xffffffff
+08020608:	f04f 36ff 	mov.w	r6, #0xffffffff
 0802060c:	4682      	mov	sl, r0
 0802060e:	4690      	mov	r8, r2
 08020610:	4699      	mov	r9, r3
@@ -56692,6 +56782,7 @@
 08020618:	f81b 1b01 	ldrb.w	r1, [fp], #1
 0802061c:	9804      	ldr	r0, [sp, #16]
 0802061e:	47d0      	blx	sl
+
 08020620:	2800      	cmp	r0, #0
 08020622:	9004      	str	r0, [sp, #16]
 08020624:	f000 80b2 	beq.w	0x802078c
@@ -56701,6 +56792,7 @@
 0802062e:	900d      	str	r0, [sp, #52]	@ 0x34
 08020630:	d1f2      	bne.n	0x8020618
 08020632:	44a8      	add	r8, r5
+
 08020634:	f898 0000 	ldrb.w	r0, [r8]
 08020638:	2825      	cmp	r0, #37	@ 0x25
 0802063a:	d107      	bne.n	0x802064c
@@ -75278,74 +75370,121 @@
 0802b1ec:	735c      	strb	r4, [r3, #13]
 0802b1ee:	2400      	movs	r4, #0
 
-; startup comes here
+; ------------------------
+; This is "INIT" -- the first code that runs
+; -------------------------
+
+; Enable the FP extension (this is the coprocessor access register in the SCB)
 0802b1f0:	4823      	ldr	r0, [pc, #140]	 ;  0xe000ed88  (0x802b280)
 0802b1f2:	6800      	ldr	r0, [r0, #0]
 0802b1f4:	f450 0070 	orrs.w	r0, r0, #15728640	@ 0xf00000
 0802b1f8:	4921      	ldr	r1, [pc, #132]	 ;  0xe000ed88  (0x802b280)
 0802b1fa:	6008      	str	r0, [r1, #0]
+
+; RCC - cr - enable HSI (should be on already)
 0802b1fc:	4821      	ldr	r0, [pc, #132]	 ;  0x58024400  (0x802b284)
 0802b1fe:	6800      	ldr	r0, [r0, #0]
 0802b200:	f050 0001 	orrs.w	r0, r0, #1
 0802b204:	491f      	ldr	r1, [pc, #124]	 ;  0x58024400  (0x802b284)
 0802b206:	6008      	str	r0, [r1, #0]
+
+; RCC - ccfg - clock config (should be 0 anyway)
 0802b208:	2000      	movs	r0, #0
 0802b20a:	491f      	ldr	r1, [pc, #124]	 ;  0x58024410  (0x802b288)
 0802b20c:	6008      	str	r0, [r1, #0]
+
+; RCC - cr - fancy mask to turn various things off
+;  (should all be zero anyway, except HSI)
 0802b20e:	481d      	ldr	r0, [pc, #116]	 ;  0x58024400  (0x802b284)
 0802b210:	6801      	ldr	r1, [r0, #0]
 0802b212:	481e      	ldr	r0, [pc, #120]	 ;  0xeaf6ed7f  (0x802b28c)
 0802b214:	4001      	ands	r1, r0
 0802b216:	481b      	ldr	r0, [pc, #108]	 ;  0x58024400  (0x802b284)
 0802b218:	6001      	str	r1, [r0, #0]
+
+; RCC - d1cfg = 0
 0802b21a:	2000      	movs	r0, #0
 0802b21c:	491c      	ldr	r1, [pc, #112]	 ;  0x58024418  (0x802b290)
 0802b21e:	6008      	str	r0, [r1, #0]
+
+; RCC - d2cfg = 0
 0802b220:	2000      	movs	r0, #0
 0802b222:	491c      	ldr	r1, [pc, #112]	 ;  0x5802441c  (0x802b294)
 0802b224:	6008      	str	r0, [r1, #0]
+
+; RCC - d3cfg = 0
 0802b226:	2000      	movs	r0, #0
 0802b228:	491b      	ldr	r1, [pc, #108]	 ;  0x58024420  (0x802b298)
 0802b22a:	6008      	str	r0, [r1, #0]
+
+; RCC - pllclksrc = 0
 0802b22c:	2000      	movs	r0, #0
 0802b22e:	491b      	ldr	r1, [pc, #108]	 ;  0x58024428  (0x802b29c)
 0802b230:	6008      	str	r0, [r1, #0]
+
+; RCC - pllcfg = 0
 0802b232:	2000      	movs	r0, #0
 0802b234:	491a      	ldr	r1, [pc, #104]	 ;  0x5802442c  (0x802b2a0)
 0802b236:	6008      	str	r0, [r1, #0]
+
+; RCC - pll1div = 0
 0802b238:	2000      	movs	r0, #0
 0802b23a:	491a      	ldr	r1, [pc, #104]	 ;  0x58024430  (0x802b2a4)
 0802b23c:	6008      	str	r0, [r1, #0]
+
+; RCC - pll1frac = 0
 0802b23e:	2000      	movs	r0, #0
 0802b240:	4919      	ldr	r1, [pc, #100]	 ;  0x58024434  (0x802b2a8)
 0802b242:	6008      	str	r0, [r1, #0]
+
+; RCC - pll2div = 0
 0802b244:	2000      	movs	r0, #0
 0802b246:	4919      	ldr	r1, [pc, #100]	 ;  0x58024438  (0x802b2ac)
 0802b248:	6008      	str	r0, [r1, #0]
+
+; RCC - pll2frac = 0
 0802b24a:	2000      	movs	r0, #0
 0802b24c:	4918      	ldr	r1, [pc, #96]	 ;  0x5802443c  (0x802b2b0)
 0802b24e:	6008      	str	r0, [r1, #0]
+
+; RCC - pll3div = 0
 0802b250:	2000      	movs	r0, #0
 0802b252:	4918      	ldr	r1, [pc, #96]	 ;  0x58024440  (0x802b2b4)
 0802b254:	6008      	str	r0, [r1, #0]
+
+; RCC - pll3frac = 0
 0802b256:	2000      	movs	r0, #0
 0802b258:	4917      	ldr	r1, [pc, #92]	 ;  0x58024444  (0x802b2b8)
 0802b25a:	6008      	str	r0, [r1, #0]
+
+; RCC - cr - set HSE bypass
 0802b25c:	4809      	ldr	r0, [pc, #36]	 ;  0x58024400  (0x802b284)
 0802b25e:	6800      	ldr	r0, [r0, #0]
-0802b260:	f430 2080 	bics.w	r0, r0, #262144	@ 0x40000
+0802b260:	f430 2080 	bics.w	r0, r0, #0x4_0000
 0802b264:	4907      	ldr	r1, [pc, #28]	 ;  0x58024400  (0x802b284)
 0802b266:	6008      	str	r0, [r1, #0]
+
+; RCC - cier = 0 -- clock source interrupt enable
 0802b268:	2000      	movs	r0, #0
 0802b26a:	4914      	ldr	r1, [pc, #80]	 ;  0x58024460  (0x802b2bc)
 0802b26c:	6008      	str	r0, [r1, #0]
+
+; 0x5100_0000 is AXI interconnect matrix (TRM section 2.2)
+; GPV is "global programmer view"
+; This is "bus matrix issuing functionality control" for x=7
+; setting 1 sets READ ISS override
+; target 7 is AXI SRAM
 0802b26e:	2001      	movs	r0, #1
 0802b270:	4913      	ldr	r1, [pc, #76]	 ;  0x51008108  (0x802b2c0)
 0802b272:	6008      	str	r0, [r1, #0]
-0802b274:	f05f 6000 	movs.w	r0, #134217728	@ 0x8000000
+
+; Set the vector table offset register
+0802b274:	f05f 6000 	movs.w	r0, #0x0800_0000
 0802b278:	4912      	ldr	r1, [pc, #72]	 ;  0xe000ed08  (0x802b2c4)
 0802b27a:	6008      	str	r0, [r1, #0]
+
 0802b27c:	4770      	bx	lr
+
 0802b27e:	0000      	movs	r0, r0
 0802b280:	ed88 e000 	stc	0, cr14, [r8]
 0802b284:	4400      	add	r0, r0
@@ -75888,6 +76027,38 @@
 0802b6da:	2020      	movs	r0, #32
 0802b6dc:	0000      	movs	r0, r0
 0802b6de:	0000      	movs	r0, r0
+
+0002b6e0 0d1b 5b33 316d 546f 6767 6c65 2065 7665     [31mToggle eve
+0002b6f0 7279 2020 3130 3020 6d73 206c 6564 3320   ry  100 ms led3
+0002b700 7265 6420 201b 5b30 6d00 0000 0d1b 5b33   red   [0m     [3
+0002b710 326d 546f 6767 6c65 2065 7665 7279 2031   2mToggle every 1
+0002b720 3030 3020 6d73 206c 6564 3120 6772 6565   000 ms led1 gree
+0002b730 6e20 1b5b 306d 0000 0a0d 5072 6573 7320   n  [0m    Press
+0002b740 7573 6572 2062 7574 746f 6e20 746f 2063   user button to c
+0002b750 6861 6e67 6520 7468 6520 746f 6767 6c65   hange the toggle
+0002b760 0000 0000 0a0d 1b5b 3331 6d54 6f67 676c          [31mToggl
+0002b770 6520 6576 6572 7920 2031 3030 206d 7320   e every  100 ms
+0002b780 6c65 6433 2072 6564 1b5b 306d 0000 0000   led3 red [0m
+0002b790 0a0d 1b5b 3332 6d54 6f67 676c 6520 6576      [32mToggle ev
+0002b7a0 6572 7920 3130 3030 206d 7320 6c65 6431   ery 1000 ms led1
+0002b7b0 2067 7265 656e 1b5b 306d 0000 0a0d 2045    green [0m     E
+0002b7c0 5448 4552 4e45 5420 5445 5354 2848 544d   THERNET TEST(HTM
+0002b7d0 4c20 2573 2064 6973 706c 6179 6564 2079   L %s displayed y
+0002b7e0 2f6e 3f29 0000 0000 2020 5479 7065 2027   /n?)      Type '
+0002b7f0 7177 6572 7479 2720 7468 656e 2045 4e54   qwerty' then ENT
+0002b800 4552 206f 6e20 5043 2074 6572 6d69 6e61   ER on PC termina
+0002b810 6c0d 0a00 2045 5448 4552 4e45 5420 5445   l    ETHERNET TE
+0002b820 5354 2848 544d 4c20 2573 2064 6973 706c   ST(HTML %s displ
+0002b830 6179 6564 2079 2f6e 3f29 0000 0d20 4554   ayed y/n?)    ET
+0002b840 4845 524e 4554 2054 4553 5428 4854 4d4c   HERNET TEST(HTML
+0002b850 2025 7320 6469 7370 6c61 7965 6420 792f    %s displayed y/
+0002b860 6e3f 2900 fa00 0000 6ffb 0008 e803 0000   n?)     o
+0002b870 f936 0108 e803 0000 9994 0108 60ea 0000    6          `
+0002b880 97a1 0108 f401 0000 09a2 0108 0a20 5553                 US
+0002b890 4552 2042 5554 544f 4e20 5445 5354 2028   ER BUTTON TEST (
+0002b8a0 5072 6573 7320 616e 6420 5265 6c65 6173   Press and Releas
+0002b8b0 6529 0d00 10b5 0749 7944 1831 064c 7c44   e)     IyD 1 L|D
+
 0802b6e0:	1b0d      	subs	r5, r1, r4
 0802b6e2:	335b      	adds	r3, #91	@ 0x5b
 0802b6e4:	6d31      	ldr	r1, [r6, #80]	@ 0x50
@@ -76194,6 +76365,8 @@
 0802b942:	0a0d      	lsrs	r5, r1, #8
 0802b944:	0000      	movs	r0, r0
 0802b946:	0000      	movs	r0, r0
+
+; subroutine MAIN-1
 0802b948:	f64e 5188 	movw	r1, #60808	@ 0xed88
 0802b94c:	f2ce 0100 	movt	r1, #57344	@ 0xe000
 0802b950:	6808      	ldr	r0, [r1, #0]
@@ -76204,6 +76377,7 @@
 0802b960:	f04f 7000 	mov.w	r0, #33554432	@ 0x2000000
 0802b964:	eee1 0a10 	vmsr	fpscr, r0
 0802b968:	4770      	bx	lr
+
 0802b96a:	0000      	movs	r0, r0
 0802b96c:	fb89 ffff 			@ <UNDEFINED> instruction: 0xfb89ffff
 0802b970:	00c0      	lsls	r0, r0, #3
@@ -76451,7 +76625,9 @@
 0802bb56:	0d20      	lsrs	r0, r4, #20
 0802bb58:	0000      	movs	r0, r0
 0802bb5a:	0000      	movs	r0, r0
-0802bb5c:	f000 f80d 	bl	0x802bb7a
+
+; subroutine MAIN-2
+0802bb5c:	f000 f80d 	bl	0x802bb7a		; strange, just below
 0802bb60:	2800      	cmp	r0, #0
 0802bb62:	d001      	beq.n	0x802bb68
 0802bb64:	f7ff fea6 	bl	0x802b8b4
@@ -76460,8 +76636,11 @@
 0802bb6e:	f3af 8000 	nop.w
 0802bb72:	f7f0 f8f9 	bl	0x801bd68
 0802bb76:	f000 f802 	bl	0x802bb7e
+
 0802bb7a:	2001      	movs	r0, #1
 0802bb7c:	4770      	bx	lr
+
+; call from above
 0802bb7e:	f000 b801 	b.w	0x802bb84
 0802bb82:	0000      	movs	r0, r0
 0802bb84:	4607      	mov	r7, r0
@@ -76626,6 +76805,7 @@
 0802bcc4:	5b1b      	ldrh	r3, [r3, r4]
 0802bcc6:	3133      	adds	r1, #51	@ 0x33
 0802bcc8:	476d      	bx	sp
+
 0802bcca:	4950      	ldr	r1, [pc, #320]	 ;  0x736d2064  (0x802be0c)
 0802bccc:	204f      	movs	r0, #79	@ 0x4f
 0802bcce:	4146      	adcs	r6, r0
@@ -76995,6 +77175,7 @@
 0802bfa8:	2400      	movne	r4, #0
 0802bfaa:	4620      	mov	r0, r4
 0802bfac:	bd32      	pop	{r1, r4, r5, pc}
+
 0802bfae:	0000      	movs	r0, r0
 0802bfb0:	4901      	ldr	r1, [pc, #4]	 ;  0x240001d4  (0x802bfb8)
 0802bfb2:	f7ef ba15 	b.w	0x801b3e0
@@ -77469,8 +77650,8 @@
 0802c360:	5453      	strb	r3, [r2, r1]
 0802c362:	000d      	movs	r5, r1
 
-; Code starts here, then jumps
-; immediately to 0x802b1f1
+; Code starts here, then makes these two calls
+; first to INIT, then to MAIN
 0802c364:	4801      	ldr	r0, [pc, #4]	 ;  0x0802b1f1  (0x802c36c)
 0802c366:	4780      	blx	r0
 0802c368:	4801      	ldr	r0, [pc, #4]	 ;  0x0802c405  (0x802c370)
@@ -77553,9 +77734,13 @@
 0802c3fe:	0000      	movs	r0, r0
 0802c400:	0000      	movs	r0, r0
 0802c402:	0000      	movs	r0, r0
+
+; main MAIN
 0802c404:	f3af 8000 	nop.w
-0802c408:	f7ff fa9e 	bl	0x802b948
-0802c40c:	f7ff fba6 	bl	0x802bb5c
+0802c408:	f7ff fa9e 	bl	0x802b948 -- MAIN-1
+0802c40c:	f7ff fba6 	bl	0x802bb5c -- MAIN-2
+
+; this stuff looks like data of some kind
 0802c410:	0909      	lsrs	r1, r1, #4
 0802c412:	0909      	lsrs	r1, r1, #4
 0802c414:	0909      	lsrs	r1, r1, #4
