@@ -1,5 +1,16 @@
+; STM32F743 demo disassembly
+;
+; Tom Trebisky 5-3-2025
+;
+; This is the code that shipped in my STM32F743 Nucleo board.
+; All it does that I have been able to discover is to blink
+; each of the 3 LED at different rates, with the user botton
+; cycling between the LED.
+;
+; Some disassembly trick taken from my Sun3/80 disassembly project
+; /u1/Projects/sun380/Github/Rom
 
-; Disassembly  4-30-2025
+; Vector table
 08000000:  240090f8
 08000004:  0802c365
 08000008:  0802b115
@@ -167,75 +178,18 @@
 08000290:  00000000
 08000294:  0802c771
 
-08000296:	0802      	lsrs	r2, r0, #32
-08000298:	532f      	strh	r7, [r5, r4]
-0800029a:	4d54      	ldr	r5, [pc, #336]	 ;  0x09080706  (0x80003ec)
-0800029c:	3233      	adds	r2, #51	@ 0x33
-0800029e:	3748      	adds	r7, #72	@ 0x48
-080002a0:	7878      	ldrb	r0, [r7, #1]
-080002a2:	665f      	str	r7, [r3, #100]	@ 0x64
-080002a4:	6c69      	ldr	r1, [r5, #68]	@ 0x44
-080002a6:	7365      	strb	r5, [r4, #13]
-080002a8:	732f      	strb	r7, [r5, #12]
-080002aa:	6d74      	ldr	r4, [r6, #84]	@ 0x54
-080002ac:	3233      	adds	r2, #51	@ 0x33
-080002ae:	6a2e      	ldr	r6, [r5, #32]
-080002b0:	6770      	str	r0, [r6, #116]	@ 0x74
-080002b2:	0000      	movs	r0, r0
-080002b4:	5448      	strb	r0, [r1, r1]
-080002b6:	5054      	str	r4, [r2, r1]
-080002b8:	312f      	adds	r1, #47	@ 0x2f
-080002ba:	302e      	adds	r0, #46	@ 0x2e
-080002bc:	3220      	adds	r2, #32
-080002be:	3030      	adds	r0, #48	@ 0x30
-080002c0:	4f20      	ldr	r7, [pc, #128]	 ;  0x05040303  (0x8000344)
-080002c2:	0d4b      	lsrs	r3, r1, #21
-080002c4:	530a      	strh	r2, [r1, r4]
-080002c6:	7265      	strb	r5, [r4, #9]
-080002c8:	6576      	str	r6, [r6, #84]	@ 0x54
-080002ca:	3a72      	subs	r2, #114	@ 0x72
-080002cc:	6c20      	ldr	r0, [r4, #64]	@ 0x40
-080002ce:	4977      	ldr	r1, [pc, #476]	 ;  0x0300011f  (0x80004ac)
-080002d0:	2f50      	cmp	r7, #80	@ 0x50
-080002d2:	2e31      	cmp	r6, #49	@ 0x31
-080002d4:	2e33      	cmp	r6, #51	@ 0x33
-080002d6:	2031      	movs	r0, #49	@ 0x31
-080002d8:	6828      	ldr	r0, [r5, #0]
-080002da:	7474      	strb	r4, [r6, #17]
-080002dc:	3a70      	subs	r2, #112	@ 0x70
-080002de:	2f2f      	cmp	r7, #47	@ 0x2f
-080002e0:	6173      	str	r3, [r6, #20]
-080002e2:	6176      	str	r6, [r6, #20]
-080002e4:	6e6e      	ldr	r6, [r5, #100]	@ 0x64
-080002e6:	6861      	ldr	r1, [r4, #4]
-080002e8:	6e2e      	ldr	r6, [r5, #96]	@ 0x60
-080002ea:	6e6f      	ldr	r7, [r5, #100]	@ 0x64
-080002ec:	6e67      	ldr	r7, [r4, #100]	@ 0x64
-080002ee:	2e75      	cmp	r6, #117	@ 0x75
-080002f0:	726f      	strb	r7, [r5, #9]
-080002f2:	2f67      	cmp	r7, #103	@ 0x67
-080002f4:	7270      	strb	r0, [r6, #9]
-080002f6:	6a6f      	ldr	r7, [r5, #36]	@ 0x24
-080002f8:	6365      	str	r5, [r4, #52]	@ 0x34
-080002fa:	7374      	strb	r4, [r6, #13]
-080002fc:	6c2f      	ldr	r7, [r5, #64]	@ 0x40
-080002fe:	6977      	ldr	r7, [r6, #20]
-08000300:	2970      	cmp	r1, #112	@ 0x70
-08000302:	0a0d      	lsrs	r5, r1, #8
-08000304:	6f43      	ldr	r3, [r0, #116]	@ 0x74
-08000306:	746e      	strb	r6, [r5, #17]
-08000308:	6e65      	ldr	r5, [r4, #100]	@ 0x64
-0800030a:	2d74      	cmp	r5, #116	@ 0x74
-0800030c:	7974      	ldrb	r4, [r6, #5]
-0800030e:	6570      	str	r0, [r6, #84]	@ 0x54
-08000310:	203a      	movs	r0, #58	@ 0x3a
-08000312:	6d69      	ldr	r1, [r5, #84]	@ 0x54
-08000314:	6761      	str	r1, [r4, #116]	@ 0x74
-08000316:	2f65      	cmp	r7, #101	@ 0x65
-08000318:	706a      	strb	r2, [r5, #1]
-0800031a:	6765      	str	r5, [r4, #116]	@ 0x74
-0800031c:	0a0d      	lsrs	r5, r1, #8
-0800031e:	0a0d      	lsrs	r5, r1, #8
+00000290                     2f53 544d 3332 4837           /STM32H7
+000002a0 7878 5f66 696c 6573 2f73 746d 3332 2e6a   xx_files/stm32.j
+000002b0 7067 0000 4854 5450 2f31 2e30 2032 3030   pg  HTTP/1.0 200
+000002c0 204f 4b0d 0a53 6572 7665 723a 206c 7749    OK  Server: lwI
+000002d0 502f 312e 332e 3120 2868 7474 703a 2f2f   P/1.3.1 (http://
+000002e0 7361 7661 6e6e 6168 2e6e 6f6e 676e 752e   savannah.nongnu.
+000002f0 6f72 672f 7072 6f6a 6563 7473 2f6c 7769   org/projects/lwi
+00000300 7029 0d0a 436f 6e74 656e 742d 7479 7065   p)  Content-type
+00000310 3a20 696d 6167 652f 6a70 6567 0d0a 0d0a   : image/jpeg
+
+; is the following a jpeg image?  Apparently.
+
 08000320:	d8ff      	bhi.n	0x8000322
 08000322:	e0ff      	b.n	0x8000524
 08000324:	1000      	asrs	r0, r0, #32
