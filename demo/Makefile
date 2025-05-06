@@ -22,7 +22,21 @@ fetch:
 #-c "dump_image dump/image.bin 0x08000000 0x100000" \
 #-c "shutdown" \
 
-#arm-none-eabi-objdump -d hydra.elf >hydra.dump
+# 0x320 = 800
+#file1.jpg:	demo.bin
+#	dd if=demo.bin of=file1.jpg bs=800 skip=1
+file1.jpg:	demo.bin
+	dd if=demo.bin of=zzz bs=800 skip=1
+	dd if=zzz of=file1.jpg bs=40620 count=1
+	rm zzz
+
+# 0x293e8 = 168936
+# 0x29de4 = 171492
+file2.jpg:	demo.bin
+	dd if=demo.bin of=zzz bs=168936 skip=1
+	dd if=zzz of=file2.jpg bs=2556 count=1
+	rm zzz
+
 demo.dis:	demo.elf
 	$(DUMP) demo.elf >demo.dis
 
