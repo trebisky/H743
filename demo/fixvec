@@ -1,0 +1,34 @@
+#!/bin/python
+
+# Plain old python is now Python3 on Fedora 41
+
+# fixvec - dress up vector table
+#
+# Tom Trebisky   5-6-2025
+
+import re
+import subprocess
+
+# I remove the table by hand and put it into this file
+# 166 lines
+infile = "vectors.raw"
+
+count = 0
+with open ( infile, "r" ) as file:
+    for rline in file:
+        count += 1
+        line = rline.strip ()
+        ww = line.split()
+        if ww[1] == '00000000' :
+            print ( line )
+        else :
+            addr = int ( ww[1], 16 )
+            addr = addr & 0xfffffffe
+            #addr2 = f'0{addr:x}'
+            addr2 = f'{addr:x}'
+            if count < 17 :
+                print ( line, " ; ", addr2 )
+            else :
+                print ( line, " ; ", addr2, " -- IRQ ", count-17 )
+
+# THE END

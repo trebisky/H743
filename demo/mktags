@@ -13,8 +13,6 @@ infile = "demo.txt"
 
 outfile = "tags"
 
-#pattern = r"^fef.....:"
-pattern = r"^080.....:"
 num = 1
 
 of = open ( outfile, "w")
@@ -27,14 +25,23 @@ def process_OLD ( line, num, prefix ) :
     of.write ( "\t".join(cmd) + "\n" )
 
 # Use pattern
-# We match 80xxxxx, but search for 080xxxxx
+# We match 80xxxxx, but search for ' 80xxxxx'
 def process ( line, num, prefix ) :
     otag = re.sub ( r":.*", "", line )
-    tag = re.sub ( r"^0", "", otag )
+    #tag = re.sub ( r"^0", "", otag )
+    #tag = re.sub ( r"^ ", "", otag )
+    tag = otag
     xtag = prefix + tag
-    srch = "/^" + otag + "/"
+    srch = "/^ " + otag + "/"
     cmd = [ xtag, infile, srch ]
     of.write ( "\t".join(cmd) + "\n" )
+
+#pattern = r"^fef.....:"
+#pattern = r"^080.....:"
+pattern = r"^80.....:"
+
+# Note that strip removes white space at the start
+# of lines, as well as the newline at the end.
 
 # spit out tags with 0x prefix.
 # vim likes these first so tags are "sorted"
