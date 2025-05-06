@@ -1,0 +1,100 @@
+#!/bin/python
+
+# Plain old python is now Python3 on Fedora 41
+
+# fix32b -- augment 32 bit PC relative constants
+#       in our stm32 thumb disassembly
+#
+# Tom Trebisky   5-6-2025
+
+# I did a bunch of these using fix32a that now look like this:
+# 0801e298:   49b8        ldr r1, [pc, #736]   ;  0x0802bf08  (0x801e57c)
+#
+# but a second sort has now caught my attention that are like so:
+# 0801e1f0:   f8df 0384   ldr.w   r0, [pc, #900]  @ 0x801e578
+
+import re
+import subprocess
+
+infile = "demo.txt"
+# This file is 3M in size (78007 lines),
+# but that seems to be no problem at all.
+
+# Here is a typical line we want to mess with
+# note that most whitespace is a tab or a tab and spaces
+# 080002c0:   4f20        ldr r7, [pc, #128]  @ (0x8000344)
+
+# We also have lines like this, I am passing them by.
+# Every one I have seen so far looks like it is in a data section
+#0802c03c:	a1dc      	add	r1, pc, #880	@ (adr r1, 0x802c3b0)
+
+instr = {}
+
+# Run our C helper program to get the 32 bit value
+# Yes this seems horribly inefficient, but who cares!
+# -- it takes only 3 seconds to do this for the whole file.
+def get_32 ( addr ) :
+    cmd = [ "./word" ]
+    cmd.append ( addr )
+
+    output = subprocess.run ( cmd, stdout=subprocess.PIPE )
+    stuff = output.stdout.decode ( 'utf-8' ).split ( '\n' )
+    rv = stuff[0]
+    return rv
+
+def process ( line ) :
+    #print ( line )
+    # 0801f9ac:   f8df 0580   ldr.w   r0, [pc, #1408] @ 0x801ff30
+    ww = line.split()
+
+    # extract address, get word
+    aa = re.sub ( r'\)$', '', ww[-1] )
+    addr = re.sub ( r'^\(0x', '0', aa )
+    x = get_32 ( addr )
+    # print ( addr, x )
+    x = '0x' + x
+    ww = line.split ( '@' )
+    print ( ww[0], "; ", x, ww[1] )
+
+# From fix32a
+def processXXX ( line ) :
+    #print ( line )
+    # 0800029a:	4d54      	ldr	r5, [pc, #336]	@ (0x80003ec)
+    ww = line.split()
+    if len(ww) != 8 :
+        print ( "Trouble 2\n" )
+        exit ()
+    a1 = re.sub ( r'\)$', '', ww[7] )
+    addr1 = re.sub ( r'^\(0x', '0', a1 )
+    #print ( addr1 )
+    x = get_32 ( addr1 )
+    #print ( x )
+    x = '0x' + x
+    ww = line.split ( '@' )
+    print ( ww[0], "; ", x, ww[1] )
+    #exit ()
+
+# This pattern catches both forms
+#patt = r'0x8......\)$'
+
+# This is the pattern for "a", our first pass
+# (about 2300 of them)
+# patt = r'\(0x8......\)$'
+
+# This will catch the second sort that we want
+# it gets 1609 of them
+# it also catches this, which we don't want.
+# I fix this by modifying the source file!
+# 0801f9e6:	f010 6000 	ands.w	r0, r0, #134217728	@ 0x8000000
+
+patt = r'@ 0x8......$'
+
+with open ( infile, "r" ) as file:
+    for rline in file:
+        line = rline.strip ()
+        if re.search ( patt, line ) :
+            process ( line )
+        else :
+            print ( line )
+
+# THE END

@@ -28,8 +28,8 @@
 
 typedef volatile unsigned int vu32;
 
-/* This is the same register layout as the STM32F103 and F411
- * which is handy.
+/* This is the register layout for the STM32F103 and F411
+ * but NOT the F743
  */
 struct uart {
         vu32 status;  /* 00 */
@@ -41,7 +41,7 @@ struct uart {
         vu32 gtp;     /* 18 - guard time and prescaler */
 };
 
-/* A first guess */
+/* A wild first guess */
 #define BUS_CLOCK	16000000
 
 #define UART1   1
@@ -109,6 +109,7 @@ uart_init ( struct uart *up, int baud )
 	up->gtp = 0;
 
 	up->baud = BUS_CLOCK / baud;
+
 #ifdef notdef
 	if ( up == UART2_BASE )
 	    up->baud = get_pclk1() / baud;
