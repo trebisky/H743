@@ -13,21 +13,24 @@
 ; Vector table
 8000000:  240090f8  ;  -- initial stack
 8000004:  0802c365  ;  802c364 -- initial PC (reset)
-8000008:  0802b115  ;  802b114
-800000c:  0802b117  ;  802b116
-8000010:  0802b119  ;  802b118
-8000014:  0802b11b  ;  802b11a
-8000018:  0802b11d  ;  802b11c
+8000008:  0802b115  ;  802b114 -- NMI
+800000c:  0802b117  ;  802b116 -- HardFault
+8000010:  0802b119  ;  802b118 -- MemManage
+8000014:  0802b11b  ;  802b11a -- BusFault
+8000018:  0802b11d  ;  802b11c -- UsageFault (illegal instr)
 800001c:  00000000
 8000020:  00000000
 8000024:  00000000
 8000028:  00000000
-800002c:  0801c4a1  ;  801c4a0
-8000030:  0802b11f  ;  802b11e
+800002c:  0801c4a1  ;  801c4a0 -- SVCall
+8000030:  0802b11f  ;  802b11e -- DebugMonitor
 8000034:  00000000
-8000038:  0801c449  ;  801c448
-800003c:  0802b121  ;  802b120
+8000038:  0801c449  ;  801c448 -- PendSV
+800003c:  0802b121  ;  802b120 -- SysTick
 
+; each of these seems to go to its own personal spin loop.
+; that could be handy if we look at the code with JTAG
+; and want to know what IRQ locked us up -- maybe.
 8000040:  0802c561  ;  802c560  -- IRQ  0
 8000044:  0802c565  ;  802c564  -- IRQ  1
 8000048:  0802c569  ;  802c568  -- IRQ  2
@@ -190,11 +193,13 @@
 00000310 3a20 696d 6167 652f 6a70 6567 0d0a 0d0a   : image/jpeg
 
 ; is the following a jpeg image?  Apparently.
+; JFIF is "Jpeg File Interchange Format" and is a container
+; to hold a JPEG image.
 
  8000320:	d8ff      	bhi.n	0x8000322
  8000322:	e0ff      	b.n	0x8000524
  8000324:	1000      	asrs	r0, r0, #32
- 8000326:	464a      	mov	r2, r9
+ 8000326:	464a      	mov	r2, r9					; 'JFIF'
  8000328:	4649      	mov	r1, r9
  800032a:	0100      	lsls	r0, r0, #4
  800032c:	0101      	lsls	r1, r0, #4
@@ -49941,8 +49946,10 @@
  801c43e:	f85d fb0c 	ldr.w	pc, [sp], #12
  801c442:	bf00      	nop
  801c444:	6383      	str	r3, [r0, #56]	@ 0x38
- 801c446:	ffff f3ef 			@ <UNDEFINED> instruction: 0xfffff3ef
- 801c44a:	8009      	strh	r1, [r1, #0]
+ 801c446:	ffff
+
+ ; PenSV handler
+ 801c448:	f3ef 8009	mrs	.....
  801c44c:	f3bf 8f6f 	isb	sy
  801c450:	4b26      	ldr	r3, [pc, #152]	 ;  0x24008838  (0x801c4ec)
  801c452:	681a      	ldr	r2, [r3, #0]
@@ -49969,6 +49976,8 @@
  801c496:	f380 8809 	msr	PSP, r0
  801c49a:	f3bf 8f6f 	isb	sy
  801c49e:	4770      	bx	lr
+
+; SVCall handler
  801c4a0:	4b12      	ldr	r3, [pc, #72]	 ;  0x24008838  (0x801c4ec)
  801c4a2:	6819      	ldr	r1, [r3, #0]
  801c4a4:	6808      	ldr	r0, [r1, #0]
@@ -71691,6 +71700,24 @@
  802935a:	127f      	asrs	r7, r7, #9
  802935c:	0010      	movs	r0, r2
  802935e:	003b      	movs	r3, r7
+
+; And here is another JPEG
+
+00029360 2f53 544d 3332 4837 7878 5f66 696c 6573   /STM32H7xx_files
+00029370 2f6c 6f67 6f2e 6a70 6700 0000 4854 5450   /logo.jpg   HTTP
+00029380 2f31 2e30 2032 3030 204f 4b0d 0a53 6572   /1.0 200 OK  Ser
+00029390 7665 723a 206c 7749 502f 312e 332e 3120   ver: lwIP/1.3.1
+000293a0 2868 7474 703a 2f2f 7361 7661 6e6e 6168   (http://savannah
+000293b0 2e6e 6f6e 676e 752e 6f72 672f 7072 6f6a   .nongnu.org/proj
+000293c0 6563 7473 2f6c 7769 7029 0d0a 436f 6e74   ects/lwip)  Cont
+000293d0 656e 742d 7479 7065 3a20 696d 6167 652f   ent-type: image/
+000293e0 6a70 6567 0d0a 0d0a ffd8 ffe0 0010 4a46   jpeg          JF
+000293f0 4946 0001 0101 0048 0048 0000 fffe 003c   IF     H H     <
+00029400 4352 4541 544f 523a 2067 642d 6a70 6567   CREATOR: gd-jpeg
+00029410 2076 312e 3020 2875 7369 6e67 2049 4a47    v1.0 (using IJG
+00029420 204a 5045 4720 7636 3229 2c20 7175 616c    JPEG v62), qual
+00029430 6974 7920 3d20 3130 300a ffdb 0043 0006   ity = 100    C
+
  8029360:	532f      	strh	r7, [r5, r4]
  8029362:	4d54      	ldr	r5, [pc, #336]	 ;  0x28282828  (0x80294b4)
  8029364:	3233      	adds	r2, #51	@ 0x33
@@ -75296,12 +75323,20 @@
  802b10e:	6970      	ldr	r0, [r6, #20]
  802b110:	336e      	adds	r3, #110	@ 0x6e
  802b112:	0034      	movs	r4, r6
+
+; NMI handler
  802b114:	4770      	bx	lr
- 802b116:	e7fe      	b.n	0x802b116
- 802b118:	e7fe      	b.n	0x802b118
- 802b11a:	e7fe      	b.n	0x802b11a
- 802b11c:	e7fe      	b.n	0x802b11c
+
+; spin loops for other exceptions
+ 802b116:	e7fe      	b.n	0x802b116 ; Hard Fault
+ 802b118:	e7fe      	b.n	0x802b118 ; Mem Manage
+ 802b11a:	e7fe      	b.n	0x802b11a ; Bus Fault
+ 802b11c:	e7fe      	b.n	0x802b11c ; Usage Fault (illegal instr)
+
+; Debug Monitor handler
  802b11e:	4770      	bx	lr
+
+; SysTick handler
  802b120:	b580      	push	{r7, lr}
  802b122:	4829      	ldr	r0, [pc, #164]	 ;  0x240087d4  (0x802b1c8)
  802b124:	6800      	ldr	r0, [r0, #0]
@@ -77936,6 +77971,7 @@
  802c55c:	4948      	ldr	r1, [pc, #288]	 ;  0xbffef7ff  (0x802c680)
  802c55e:	0044      	lsls	r4, r0, #1
 
+; Spin loops for IRQ
  802c560:	f7ff bffe 	b.w	0x802c560
  802c564:	f7ff bffe 	b.w	0x802c564
  802c568:	f7ff bffe 	b.w	0x802c568
@@ -78069,6 +78105,7 @@
  802c768:	f7ff bffe 	b.w	0x802c768
  802c76c:	f7ff bffe 	b.w	0x802c76c
  802c770:	f7ff bffe 	b.w	0x802c770
+
  802c774:	0450      	lsls	r0, r2, #17
  802c776:	0000      	movs	r0, r0
  802c778:	5802      	ldr	r2, [r0, r0]
