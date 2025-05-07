@@ -11914,6 +11914,8 @@
  8012cbc:	f3bf 8f6f 	isb	sy
  8012cc0:	bc30      	pop	{r4, r5}
  8012cc2:	4770      	bx	lr
+
+; Subroutine - Ether
  8012cc4:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
  8012cc8:	b0a0      	sub	sp, #128	@ 0x80
  8012cca:	0004      	movs	r4, r0
@@ -11922,6 +11924,8 @@
  8012cd0:	f8df 15a8 	ldr.w	r1, [pc, #1448]	 ;  0x0802c448  0x801327c
  8012cd4:	e9d1 2300 	ldrd	r2, r3, [r1]
  8012cd8:	e9c0 2300 	strd	r2, r3, [r0]
+
+; ethernet
  8012cdc:	f8df 05a0 	ldr.w	r0, [pc, #1440]	 ;  0x40028000  0x8013280
  8012ce0:	f8df 15a0 	ldr.w	r1, [pc, #1440]	 ;  0x24008308  0x8013284
  8012ce4:	6008      	str	r0, [r1, #0]
@@ -12073,6 +12077,7 @@
  8012e92:	f003 fdcd 	bl	0x8016a30
  8012e96:	b020      	add	sp, #128	@ 0x80
  8012e98:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
+
  8012e9c:	e92d 4ff8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
  8012ea0:	b08c      	sub	sp, #48	@ 0x30
  8012ea2:	0006      	movs	r6, r0
@@ -12221,7 +12226,7 @@
  8013006:	48ab      	ldr	r0, [pc, #684]	 ;  0x08012e9d  (0x80132b4)
  8013008:	61a0      	str	r0, [r4, #24]
  801300a:	0020      	movs	r0, r4
- 801300c:	f7ff fe5a 	bl	0x8012cc4
+ 801300c:	f7ff fe5a 	bl	0x8012cc4		; Ether
  8013010:	2000      	movs	r0, #0
  8013012:	bd10      	pop	{r4, pc}
  8013014:	2800      	cmp	r0, #0
@@ -12944,12 +12949,15 @@
  8013694:	bdf0      	pop	{r4, r5, r6, r7, pc}
  8013696:	0000      	movs	r0, r0
  8013698:	ed04 e000 	stc	0, cr14, [r4, #-0]
+
+; called only from SysTick handler
  801369c:	b580      	push	{r7, lr}
  801369e:	f004 fad3 	bl	0x8017c48
  80136a2:	2801      	cmp	r0, #1
  80136a4:	d001      	beq.n	0x80136aa
  80136a6:	f004 fe0d 	bl	0x80182c4
  80136aa:	bd01      	pop	{r0, pc}
+
  80136ac:	b510      	push	{r4, lr}
  80136ae:	0004      	movs	r4, r0
  80136b0:	0020      	movs	r0, r4
@@ -19919,6 +19927,8 @@
  8017c40:	f8df 24c4 	ldr.w	r2, [pc, #1220]	 ;  0x24008868  0x8018108
  8017c44:	6010      	str	r0, [r2, #0]
  8017c46:	4770      	bx	lr
+
+; 4 calls, including one from SysTick handler
  8017c48:	f8df 04c0 	ldr.w	r0, [pc, #1216]	 ;  0x24008854  0x801810c
  8017c4c:	6800      	ldr	r0, [r0, #0]
  8017c4e:	2800      	cmp	r0, #0
@@ -19933,6 +19943,7 @@
  8017c62:	e000      	b.n	0x8017c66
  8017c64:	2000      	movs	r0, #0
  8017c66:	4770      	bx	lr
+
  8017c68:	8680      	strh	r0, [r0, #52]	@ 0x34
  8017c6a:	2400      	movs	r4, #0
  8017c6c:	b570      	push	{r4, r5, r6, lr}
@@ -20323,6 +20334,7 @@
  8018022:	f8df 00e0 	ldr.w	r0, [pc, #224]	 ;  0x24008838  0x8018104
  8018026:	6800      	ldr	r0, [r0, #0]
  8018028:	4770      	bx	lr
+
  801802a:	0000      	movs	r0, r0
  801802c:	88df      	ldrh	r7, [r3, #6]
  801802e:	2400      	movs	r4, #0
@@ -20459,6 +20471,7 @@
  8018142:	6003      	str	r3, [r0, #0]
  8018144:	3820      	subs	r0, #32
  8018146:	4770      	bx	lr
+
  8018148:	487c      	ldr	r0, [pc, #496]	 ;  0x24000148  (0x801833c)
  801814a:	6800      	ldr	r0, [r0, #0]
  801814c:	f110 0f01 	cmn.w	r0, #1
@@ -20588,6 +20601,7 @@
  801828a:	f3bf 8f6f 	isb	sy
  801828e:	e7fe      	b.n	0x801828e
  8018290:	4770      	bx	lr
+
  8018292:	482a      	ldr	r0, [pc, #168]	 ;  0x24000148  (0x801833c)
  8018294:	6800      	ldr	r0, [r0, #0]
  8018296:	2800      	cmp	r0, #0
@@ -20609,6 +20623,8 @@
  80182bc:	2000      	movs	r0, #0
  80182be:	f380 8811 	msr	BASEPRI, r0
  80182c2:	4770      	bx	lr
+
+; Only one call, from systick handler
  80182c4:	b580      	push	{r7, lr}
  80182c6:	2050      	movs	r0, #80	@ 0x50
  80182c8:	f380 8811 	msr	BASEPRI, r0
@@ -20623,6 +20639,7 @@
  80182e4:	2000      	movs	r0, #0
  80182e6:	f380 8811 	msr	BASEPRI, r0
  80182ea:	bd01      	pop	{r0, pc}
+
  80182ec:	f3ef 8005 	mrs	r0, IPSR
  80182f0:	2810      	cmp	r0, #16
  80182f2:	d311      	bcc.n	0x8018318
@@ -20640,21 +20657,26 @@
  801830a:	f382 8811 	msr	BASEPRI, r2
  801830e:	f3bf 8f4f 	dsb	sy
  8018312:	f3bf 8f6f 	isb	sy
- 8018316:	e7fe      	b.n	0x8018316
+ 8018316:	e7fe      	b.n	0x8018316		; spin !!
+
  8018318:	4a0e      	ldr	r2, [pc, #56]	 ;  0x2400882c  (0x8018354)
  801831a:	6812      	ldr	r2, [r2, #0]
  801831c:	4b12      	ldr	r3, [pc, #72]	 ;  0xe000ed0c  (0x8018368)
  801831e:	681b      	ldr	r3, [r3, #0]
  8018320:	f413 63e0 	ands.w	r3, r3, #1792	@ 0x700
  8018324:	429a      	cmp	r2, r3
- 8018326:	d207      	bcs.n	0x8018338
+ 8018326:	d207      	bcs.n	0x8018338	; return
+
  8018328:	2250      	movs	r2, #80	@ 0x50
  801832a:	f382 8811 	msr	BASEPRI, r2
  801832e:	f3bf 8f4f 	dsb	sy
  8018332:	f3bf 8f6f 	isb	sy
- 8018336:	e7fe      	b.n	0x8018336
+ 8018336:	e7fe      	b.n	0x8018336		; spin !!
  8018338:	4770      	bx	lr
- 801833a:	0000      	movs	r0, r0
+
+ 801833a:	0000
+
+; block of 32 bit constants
  801833c:	0148      	lsls	r0, r1, #5
  801833e:	2400      	movs	r4, #0
  8018340:	ed00 e000 	stc	0, cr14, [r0, #-0]
@@ -20669,11 +20691,13 @@
  8018354:	882c      	ldrh	r4, [r5, #0]
  8018356:	2400      	movs	r4, #0
  8018358:	ed20 e000 	stc	0, cr14, [r0, #-0]
- 801835c:	ef34 e000 	vhadd.s<illegal width 64>	d14, d4, d0
+ 801835c:	ef34 e000 	; constant referenced elsewhere
  8018360:	ed04 e000 	stc	0, cr14, [r4, #-0]
  8018364:	c54c      	stmia	r5!, {r2, r3, r6}
  8018366:	0802      	lsrs	r2, r0, #32
  8018368:	ed0c e000 	stc	0, cr14, [ip, #-0]
+
+; subroutine
  801836c:	2000      	movs	r0, #0
  801836e:	4909      	ldr	r1, [pc, #36]	 ;  0xe000e010  (0x8018394)
  8018370:	6008      	str	r0, [r1, #0]
@@ -20691,6 +20715,7 @@
  801838c:	4901      	ldr	r1, [pc, #4]	 ;  0xe000e010  (0x8018394)
  801838e:	6008      	str	r0, [r1, #0]
  8018390:	4770      	bx	lr
+
  8018392:	bf00      	nop
  8018394:	e010      	b.n	0x80183b8
  8018396:	e000      	b.n	0x801839a
@@ -20764,6 +20789,7 @@
  801843e:	b280      	uxth	r0, r0
  8018440:	bcf2      	pop	{r1, r4, r5, r6, r7}
  8018442:	4770      	bx	lr
+
  8018444:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
  8018446:	0005      	movs	r5, r0
  8018448:	2600      	movs	r6, #0
@@ -20825,6 +20851,7 @@
  80184d6:	f8df 2008 	ldr.w	r2, [pc, #8]	 ;  0x58000404  0x80184e0
  80184da:	6011      	str	r1, [r2, #0]
  80184dc:	4770      	bx	lr
+
  80184de:	0000      	movs	r0, r0
  80184e0:	0404      	lsls	r4, r0, #16
  80184e2:	5800      	ldr	r0, [r0, r0]
@@ -25496,6 +25523,8 @@
  801b174:	f7ff fcaf 	bl	0x801aad6
  801b178:	2000      	movs	r0, #0
  801b17a:	bdf2      	pop	{r1, r4, r5, r6, r7, pc}
+
+; 32 bit constants
  801b17c:	8770      	strh	r0, [r6, #58]	@ 0x3a
  801b17e:	2400      	movs	r4, #0
  801b180:	85d4      	strh	r4, [r2, #46]	@ 0x2e
@@ -25506,6 +25535,8 @@
  801b18a:	2400      	movs	r4, #0
  801b18c:	8263      	strh	r3, [r4, #18]
  801b18e:	6353      	str	r3, [r2, #52]	@ 0x34
+
+; subroutine, many calls
  801b190:	b510      	push	{r4, lr}
  801b192:	0004      	movs	r4, r0
  801b194:	2c00      	cmp	r4, #0
@@ -25550,6 +25581,7 @@
  801b1ea:	e7eb      	b.n	0x801b1c4
  801b1ec:	4770      	bx	lr
 
+; subroutine, 2 calls
  801b1ee:	0001      	movs	r1, r0
  801b1f0:	2900      	cmp	r1, #0
  801b1f2:	d011      	beq.n	0x801b218
@@ -25577,7 +25609,9 @@
 ; subroutine, many calls
  801b21c:	2200      	movs	r2, #0
  801b21e:	f7f7 baa3 	b.w	0x8012768
- 801b222:	0000      	movs	r0, r0
+ 801b222:	0000
+
+; subroutine ?? -- never called?
  801b224:	b518      	push	{r3, r4, lr}
  801b226:	b0b5      	sub	sp, #212	@ 0xd4
  801b228:	0004      	movs	r4, r0
@@ -25652,6 +25686,15 @@
  801b2aa:	6008      	str	r0, [r1, #0]
 
 ; 0x24008288 is some kind of structure	-- struct-SIO
+;
+; 0 = hardware base address (usart3 in our case)
+; 4 - r4 from above (was the r0 argument when the above was called)
+; 8 - 0
+; 12 (c) - 0
+; 16 (0x10) - 0
+; 20 (0x14) - 12
+; 24 (0x18) - 0
+
  801b2ac:	4886      	ldr	r0, [pc, #536]	 ;  0x40004800  (0x801b4c8) - usart3
  801b2ae:	4987      	ldr	r1, [pc, #540]	 ;  0x24008288  (0x801b4cc)	-- struct-SIO
  801b2b0:	6008      	str	r0, [r1, #0]
@@ -25970,6 +26013,7 @@
  801b54c:	f803 2c04 	strb.w	r2, [r3, #-4]
  801b550:	bc10      	pop	{r4}
  801b552:	4770      	bx	lr
+
  801b554:	f3bf 8f4f 	dsb	sy
  801b558:	f3bf 8f6f 	isb	sy
  801b55c:	2000      	movs	r0, #0
@@ -25985,6 +26029,7 @@
  801b57c:	f3bf 8f4f 	dsb	sy
  801b580:	f3bf 8f6f 	isb	sy
  801b584:	4770      	bx	lr
+
  801b586:	b410      	push	{r4}
  801b588:	2000      	movs	r0, #0
  801b58a:	f8df 1ae4 	ldr.w	r1, [pc, #2788]	 ;  0xe000ed84  0x801c070
@@ -29613,8 +29658,8 @@
  801db7e:	2400      	movs	r4, #0
 
 ; Subroutine
-; Called with r0 pointing to some kind of Uart control structure
 ; Only one call, during initialization
+; Called with r0 pointing to our SIO control structure
 ; right after this returns, we enable the usart
  801db80:	b510      	push	{r4, lr}
  801db82:	0004      	movs	r4, r0
@@ -29783,7 +29828,7 @@
  801dcde:	2700      	movs	r7, #0
  801dce0:	f05f 0800 	movs.w	r8, #0
 
-; lpuart ?
+; lpuart  - we check the address, but ultimately do nothing about it.
  801dce4:	6828      	ldr	r0, [r5, #0]
  801dce6:	f8df 1854 	ldr.w	r1, [pc, #2132]	 ;  0x58000c00  0x801e53c
  801dcea:	4288      	cmp	r0, r1
@@ -29817,6 +29862,7 @@
  801dd22:	6828      	ldr	r0, [r5, #0]
  801dd24:	6042      	str	r2, [r0, #4]
 
+; Check lpuart1 again
  801dd26:	69ac      	ldr	r4, [r5, #24]
  801dd28:	6828      	ldr	r0, [r5, #0]
  801dd2a:	f8df 2810 	ldr.w	r2, [pc, #2064]	 ;  0x58000c00  0x801e53c
@@ -29844,6 +29890,8 @@
  801dd5c:	0109      	lsls	r1, r1, #4
  801dd5e:	6a68      	ldr	r0, [r5, #36]	@ 0x24
  801dd60:	4301      	orrs	r1, r0
+
+; usart1
  801dd62:	6828      	ldr	r0, [r5, #0]
  801dd64:	62c1      	str	r1, [r0, #44]	@ 0x2c
  801dd66:	6828      	ldr	r0, [r5, #0]
@@ -29884,10 +29932,14 @@
  801ddb2:	2020      	movs	r0, #32
  801ddb4:	0006      	movs	r6, r0
  801ddb6:	e138      	b.n	0x801e02a
+
+; usart2
  801ddb8:	6828      	ldr	r0, [r5, #0]
  801ddba:	f8df 1794 	ldr.w	r1, [pc, #1940]	 ;  0x40004400  0x801e550
  801ddbe:	4288      	cmp	r0, r1
  801ddc0:	d121      	bne.n	0x801de06
+
+; RCC
  801ddc2:	f8df 0788 	ldr.w	r0, [pc, #1928]	 ;  0x58024454  0x801e54c
  801ddc6:	6800      	ldr	r0, [r0, #0]
  801ddc8:	f010 0007 	ands.w	r0, r0, #7
@@ -29921,12 +29973,13 @@
  801de02:	0006      	movs	r6, r0
  801de04:	e111      	b.n	0x801e02a
 
-; usart3 ?
+; usart3
  801de06:	6828      	ldr	r0, [r5, #0]
  801de08:	f8df 1748 	ldr.w	r1, [pc, #1864]	 ;  0x40004800  0x801e554
  801de0c:	4288      	cmp	r0, r1
  801de0e:	d121      	bne.n	0x801de54
 
+; RCC
  801de10:	f8df 0738 	ldr.w	r0, [pc, #1848]	 ;  0x58024454  0x801e54c
  801de14:	6800      	ldr	r0, [r0, #0]
  801de16:	f010 0007 	ands.w	r0, r0, #7
@@ -29959,10 +30012,14 @@
  801de4e:	2020      	movs	r0, #32
  801de50:	0006      	movs	r6, r0
  801de52:	e0ea      	b.n	0x801e02a
+
+; uart4
  801de54:	6828      	ldr	r0, [r5, #0]
  801de56:	f8df 1700 	ldr.w	r1, [pc, #1792]	 ;  0x40004c00  0x801e558
  801de5a:	4288      	cmp	r0, r1
  801de5c:	d121      	bne.n	0x801dea2
+
+; RCC
  801de5e:	f8df 06ec 	ldr.w	r0, [pc, #1772]	 ;  0x58024454  0x801e54c
  801de62:	6800      	ldr	r0, [r0, #0]
  801de64:	f010 0007 	ands.w	r0, r0, #7
@@ -29995,10 +30052,13 @@
  801de9c:	2020      	movs	r0, #32
  801de9e:	0006      	movs	r6, r0
  801dea0:	e0c3      	b.n	0x801e02a
+
+; uart5
  801dea2:	6828      	ldr	r0, [r5, #0]
  801dea4:	f8df 16b4 	ldr.w	r1, [pc, #1716]	 ;  0x40005000  0x801e55c
  801dea8:	4288      	cmp	r0, r1
  801deaa:	d121      	bne.n	0x801def0
+; RCC
  801deac:	f8df 069c 	ldr.w	r0, [pc, #1692]	 ;  0x58024454  0x801e54c
  801deb0:	6800      	ldr	r0, [r0, #0]
  801deb2:	f010 0007 	ands.w	r0, r0, #7
@@ -30031,10 +30091,14 @@
  801deea:	2020      	movs	r0, #32
  801deec:	0006      	movs	r6, r0
  801deee:	e09c      	b.n	0x801e02a
+
+; usart6
  801def0:	6828      	ldr	r0, [r5, #0]
  801def2:	f8df 166c 	ldr.w	r1, [pc, #1644]	 ;  0x40011400  0x801e560
  801def6:	4288      	cmp	r0, r1
  801def8:	d123      	bne.n	0x801df42
+
+; RCC
  801defa:	f8df 0650 	ldr.w	r0, [pc, #1616]	 ;  0x58024454  0x801e54c
  801defe:	6800      	ldr	r0, [r0, #0]
  801df00:	f010 0038 	ands.w	r0, r0, #56	@ 0x38
@@ -30069,10 +30133,14 @@
  801df3c:	2020      	movs	r0, #32
  801df3e:	0006      	movs	r6, r0
  801df40:	e073      	b.n	0x801e02a
+
+; uart7
  801df42:	6828      	ldr	r0, [r5, #0]
  801df44:	f8df 161c 	ldr.w	r1, [pc, #1564]	 ;  0x40007800  0x801e564
  801df48:	4288      	cmp	r0, r1
  801df4a:	d121      	bne.n	0x801df90
+
+; RCC
  801df4c:	f8df 05fc 	ldr.w	r0, [pc, #1532]	 ;  0x58024454  0x801e54c
  801df50:	6800      	ldr	r0, [r0, #0]
  801df52:	f010 0007 	ands.w	r0, r0, #7
@@ -30105,10 +30173,14 @@
  801df8a:	2020      	movs	r0, #32
  801df8c:	0006      	movs	r6, r0
  801df8e:	e04c      	b.n	0x801e02a
+
+; uart8
  801df90:	6828      	ldr	r0, [r5, #0]
  801df92:	f8df 15d4 	ldr.w	r1, [pc, #1492]	 ;  0x40007c00  0x801e568
  801df96:	4288      	cmp	r0, r1
  801df98:	d121      	bne.n	0x801dfde
+
+; RCC
  801df9a:	f8df 05b0 	ldr.w	r0, [pc, #1456]	 ;  0x58024454  0x801e54c
  801df9e:	6800      	ldr	r0, [r0, #0]
  801dfa0:	f010 0007 	ands.w	r0, r0, #7
@@ -30141,10 +30213,14 @@
  801dfd8:	2020      	movs	r0, #32
  801dfda:	0006      	movs	r6, r0
  801dfdc:	e025      	b.n	0x801e02a
+
+; lpuart1
  801dfde:	6828      	ldr	r0, [r5, #0]
  801dfe0:	f8df 1558 	ldr.w	r1, [pc, #1368]	 ;  0x58000c00  0x801e53c
  801dfe4:	4288      	cmp	r0, r1
  801dfe6:	d120      	bne.n	0x801e02a
+
+; RCC (but offset 8 now)
  801dfe8:	f8df 0580 	ldr.w	r0, [pc, #1408]	 ;  0x58024458  0x801e56c
  801dfec:	6800      	ldr	r0, [r0, #0]
  801dfee:	f010 0007 	ands.w	r0, r0, #7
@@ -30176,6 +30252,8 @@
  801e024:	e001      	b.n	0x801e02a
  801e026:	2020      	movs	r0, #32
  801e028:	0006      	movs	r6, r0
+
+; lpuart1
  801e02a:	6828      	ldr	r0, [r5, #0]
  801e02c:	f8df 150c 	ldr.w	r1, [pc, #1292]	 ;  0x58000c00  0x801e53c
  801e030:	4288      	cmp	r0, r1
@@ -30197,6 +30275,7 @@
  801e052:	2840      	cmp	r0, #64	@ 0x40
  801e054:	d00a      	beq.n	0x801e06c
  801e056:	e02a      	b.n	0x801e0ae
+
  801e058:	f7ff f948 	bl	0x801d2ec
  801e05c:	0004      	movs	r4, r0
  801e05e:	e028      	b.n	0x801e0b2
@@ -30210,11 +30289,15 @@
  801e072:	9801      	ldr	r0, [sp, #4]
  801e074:	0004      	movs	r4, r0
  801e076:	e01c      	b.n	0x801e0b2
+
+; RCC
  801e078:	f8df 04f4 	ldr.w	r0, [pc, #1268]	 ;  0x58024400  0x801e570
  801e07c:	6800      	ldr	r0, [r0, #0]
  801e07e:	0680      	lsls	r0, r0, #26
  801e080:	d509      	bpl.n	0x801e096
  801e082:	f8df 04f0 	ldr.w	r0, [pc, #1264]	 ;  0x03d09000  0x801e574
+
+; RCC
  801e086:	f8df 14e8 	ldr.w	r1, [pc, #1256]	 ;  0x58024400  0x801e570
  801e08a:	6809      	ldr	r1, [r1, #0]
  801e08c:	f3c1 01c1 	ubfx	r1, r1, #3, #2
@@ -30227,6 +30310,7 @@
  801e09e:	f8df 04d8 	ldr.w	r0, [pc, #1240]	 ;  0x003d0900  0x801e578
  801e0a2:	0004      	movs	r4, r0
  801e0a4:	e005      	b.n	0x801e0b2
+
  801e0a6:	f44f 4000 	mov.w	r0, #32768	@ 0x8000
  801e0aa:	0004      	movs	r4, r0
  801e0ac:	e001      	b.n	0x801e0b2
@@ -30311,11 +30395,15 @@
  801e17a:	f003 fbad 	bl	0x80218d8
  801e17e:	0004      	movs	r4, r0
  801e180:	e065      	b.n	0x801e24e
+
+; RCC
  801e182:	f8df 03ec 	ldr.w	r0, [pc, #1004]	 ;  0x58024400  0x801e570
  801e186:	6800      	ldr	r0, [r0, #0]
  801e188:	0680      	lsls	r0, r0, #26
  801e18a:	d51b      	bpl.n	0x801e1c4
  801e18c:	f8df 03e4 	ldr.w	r0, [pc, #996]	 ;  0x03d09000  0x801e574
+
+; RCC
  801e190:	f8df 13dc 	ldr.w	r1, [pc, #988]	 ;  0x58024400  0x801e570
  801e194:	6809      	ldr	r1, [r1, #0]
  801e196:	f3c1 01c1 	ubfx	r1, r1, #3, #2
@@ -30469,6 +30557,8 @@
  801e328:	0680      	lsls	r0, r0, #26
  801e32a:	d514      	bpl.n	0x801e356
  801e32c:	4891      	ldr	r0, [pc, #580]	 ;  0x03d09000  (0x801e574)
+
+; RCC
  801e32e:	4990      	ldr	r1, [pc, #576]	 ;  0x58024400  (0x801e570)
  801e330:	6809      	ldr	r1, [r1, #0]
  801e332:	f3c1 01c1 	ubfx	r1, r1, #3, #2
@@ -30610,6 +30700,8 @@
  801e494:	0680      	lsls	r0, r0, #26
  801e496:	d515      	bpl.n	0x801e4c4
  801e498:	4836      	ldr	r0, [pc, #216]	 ;  0x03d09000  (0x801e574)
+
+; RCC
  801e49a:	4935      	ldr	r1, [pc, #212]	 ;  0x58024400  (0x801e570)
  801e49c:	6809      	ldr	r1, [r1, #0]
  801e49e:	f3c1 01c1 	ubfx	r1, r1, #3, #2
@@ -30673,20 +30765,21 @@
  801e536:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
 
  801e53a:	0000
+
 ; below here are 32 bit constants referenced up above
  801e53c:	0c00      	; lpuart1
  801e53e:	5800
 
- 801e540:	69f3      	ldr	r3, [r6, #28]
- 801e542:	cfff      	ldmia	r7, {r0, r1, r2, r3, r4, r5, r6, r7}
+ 801e540:	69f3
+ 801e542:	cfff
 
  801e544:	f4ff 11ff
 
  801e548:	1000      	; usart1
  801e54a:	4001
 
- 801e54c:	4454      	add	r4, sl
- 801e54e:	5802      	ldr	r2, [r0, r0]
+ 801e54c:	4454
+ 801e54e:	5802
 
  801e550:	4400      	; usart2
  801e552:	4000
@@ -30709,25 +30802,25 @@
  801e568:	7c00      	; uart8
  801e56a:	4000
 
- 801e56c:	4458      	add	r0, fp
- 801e56e:	5802      	ldr	r2, [r0, r0]
+ 801e56c:	4458
+ 801e56e:	5802
 
- 801e570:	4400      	add	r0, r0
- 801e572:	5802      	ldr	r2, [r0, r0]
+ 801e570:	4400
+ 801e572:	5802
 
- 801e574:	9000      	str	r0, [sp, #0]
- 801e576:	03d0      	lsls	r0, r2, #15
+ 801e574:	9000
+ 801e576:	03d0
 
- 801e578:	0900      	lsrs	r0, r0, #4
- 801e57a:	003d      	movs	r5, r7
+ 801e578:	0900
+ 801e57a:	003d
 
- 801e57c:	bf08      	it	eq
- 801e57e:	0802      	lsreq	r2, r0, #32
+ 801e57c:	bf08
+ 801e57e:	0802
 
 ; Subroutine Uinit-B
 ; Subroutine - one call with r0 pointing to struct-SIO
 ; -- note the repeated pattern with
-;    accessed to usart CR2 and CR3
+;    accesses to usart CR2 and CR3
  801e580:	f890 1034 	ldrb.w	r1, [r0, #52]	@ 0x34
  801e584:	07c9      	lsls	r1, r1, #31
  801e586:	d507      	bpl.n	0x801e598
@@ -51002,18 +51095,25 @@
  802b124:	6800      	ldr	r0, [r0, #0]
  802b126:	2800      	cmp	r0, #0
  802b128:	d109      	bne.n	0x802b13e
+
+; if ( sys_count == 0 ) return;
  802b12a:	4828      	ldr	r0, [pc, #160]	 ;  0x240087cc  (0x802b1cc)
  802b12c:	6800      	ldr	r0, [r0, #0]
  802b12e:	2800      	cmp	r0, #0
- 802b130:	d007      	beq.n	0x802b142
+ 802b130:	d007      	beq.n	0x802b142	 ; go return
+
+; --sys_count;
  802b132:	4826      	ldr	r0, [pc, #152]	 ;  0x240087cc  (0x802b1cc)
  802b134:	6800      	ldr	r0, [r0, #0]
  802b136:	1e40      	subs	r0, r0, #1
  802b138:	4924      	ldr	r1, [pc, #144]	 ;  0x240087cc  (0x802b1cc)
  802b13a:	6008      	str	r0, [r1, #0]
+
+; return
  802b13c:	e001      	b.n	0x802b142
  802b13e:	f7e8 faad 	bl	0x801369c
  802b142:	bd01      	pop	{r0, pc}
+
  802b144:	b580      	push	{r7, lr}
  802b146:	4822      	ldr	r0, [pc, #136]	 ;  0x24008308  (0x802b1d0)
  802b148:	f7e9 fe95 	bl	0x8014e76
