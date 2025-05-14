@@ -1,0 +1,82 @@
+#!/bin/python
+
+# Plain old python is now Python3 on Fedora 41
+
+# fixcons -- install 32 bit constants
+#
+# Tom Trebisky   5-7-2025
+
+import re
+import subprocess
+
+infile = "demo.txt"
+origfile = "BAK/demo.ORIG"
+
+# We pull code from fix32a/b to make the address list
+
+addr = []
+
+def get_32 ( addr ) :
+    cmd = [ "./word" ]
+    cmd.append ( addr )
+
+    output = subprocess.run ( cmd, stdout=subprocess.PIPE )
+    stuff = output.stdout.decode ( 'utf-8' ).split ( '\n' )
+    rv = stuff[0]
+    return rv
+
+def process_a ( line ) :
+    #print ( line )
+    # 0800029a:	4d54      	ldr	r5, [pc, #336]	@ (0x80003ec)
+    # 801b2e2:	4979      	ldr	r1, [pc, #484]	 ;  0x40004800  (0x801b4c8) - usart3
+    ww = line.split()
+    a1 = re.sub ( r'\)$', '', ww[-1] )
+    addr1 = re.sub ( r'^\(0x', '0', a1 )
+    #x = get_32 ( addr1 )
+    #x = '0x' + x
+    #print ( addr1 )
+    addr.append ( addr1 )
+
+def process_b ( line ) :
+    #print ( line )
+    # 0801f9ac:   f8df 0580   ldr.w   r0, [pc, #1408] @ 0x801ff30
+    # 801b530:   f8df 3a6c   ldr.w   r3, [pc, #2668]  ;  0xe000e400  0x801bfa0
+    ww = line.split()
+
+    # extract address, get word
+    addr2 = re.sub ( r'^0x', '0', ww[-1] )
+    #x = get_32 ( addr )
+    # print ( addr, x )
+    #x = '0x' + x
+    #print ( addr2 )
+    addr.append ( addr2 )
+
+# This gets the type "a" (2341 of them)
+# 080002c0:   4f20        ldr r7, [pc, #128]  @ (0x8000344)
+patt_a = r'\(0x8......\)$'
+
+# This gets the type "b" (1621 of them)
+# 0801f9ac:   f8df 0580   ldr.w   r0, [pc, #1408] @ 0x801ff30
+patt_b = r'@ 0x8......$'
+
+# We search the original file to get our list (3962 all told)
+# Remember these are address references, so:
+# 1 - they may be out of order
+# 2 - there may be duplicates
+with open ( origfile, "r" ) as file:
+    for rline in file:
+        line = rline.strip ()
+        if re.search ( patt_a, line ) :
+            process_a ( line )
+        if re.search ( patt_b, line ) :
+            process_b ( line )
+
+# Remove duplicates (this takes us from 3962 to 1716)
+# Then sort
+uaddr = list(set(addr))
+uaddr.sort ()
+
+for a in uaddr :
+    print ( a )
+
+# THE END

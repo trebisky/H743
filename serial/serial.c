@@ -28,18 +28,33 @@
 
 typedef volatile unsigned int vu32;
 
-/* This is the register layout for the STM32F103 and F411
- * but NOT the F743
+#define BIT(nr)		(1<<(nr))
+
+/* This is the NEW register layout for the H743
  */
 struct uart {
-        vu32 status;  /* 00 */
-        vu32 data;    /* 04 */
-        vu32 baud;    /* 08 */
-        vu32 cr1;     /* 0c */
-        vu32 cr2;     /* 10 */
-        vu32 cr3;     /* 14 */
-        vu32 gtp;     /* 18 - guard time and prescaler */
+        vu32 cr1;  		/* 00 */
+        vu32 cr2;    	/* 04 */
+        vu32 cr3;    	/* 08 */
+        vu32 baud;      /* 0c */
+        vu32 gtp;       /* 10 */
+        vu32 rto;       /* 14 */
+        vu32 rqr;       /* 18 */
+		vu32 isr;		/* 1c */
+		vu32 icr;		/* 20 */
+		vu32 rxdata;	/* 24 */
+		vu32 txdata;	/* 28 */
+		vu32 pre;		/* 2c */
 };
+
+#define CR1_UE		BIT(0)		/* enable UART */
+#define CR1_TxE		BIT(3)		/* enable UART */
+#define CR1_RxE		BIT(2)		/* enable UART */
+
+#define PRE4		2		/* divide by 4 */
+
+#define ISR_TXFNF	BIT(7)		/* Tx Fifo not full, OK to write */
+#define ISR_RXFNE	BIT(5)		/* Rx Fifo not empty, data to read */
 
 /* A wild first guess */
 #define BUS_CLOCK	16000000
@@ -58,71 +73,42 @@ struct uart {
 #define UART5_BASE      (struct uart *) 0x40005000
 #define UART6_BASE      (struct uart *) 0x40011400
 
-/* Bits in Cr1 */
-#define	CR1_ENABLE	0x2000
-#define	CR1_9BIT	0x1000
-#define	CR1_WAKE	0x0800
-#define	CR1_PARITY	0x0400
-#define	CR1_ODD		0x0200
-#define	CR1_PIE		0x0100
-#define	CR1_TXEIE	0x0080
-#define	CR1_TCIE	0x0040
-#define	CR1_RXIE	0x0020
-#define	CR1_IDLE_IE	0x0010
-#define	CR1_TXE		0x0008
-#define	CR1_RXE		0x0004
-#define	CR1_RWU		0x0002
-#define	CR1_BRK		0x0001
-
-// I don't understand the 9 bit thing, but it is needed.
-#define CR1_CONSOLE	0x340c
-
-/* SAM_M8Q gps is 9600, no parity, one stop */
-#define CR1_GPS		0x200c
-
-/* bits in the status register */
-#define	ST_PE		0x0001
-#define	ST_FE		0x0002
-#define	ST_NE		0x0004
-#define	ST_OVER		0x0008
-#define	ST_IDLE		0x0010
-#define	ST_RXNE		0x0020		/* Receiver not empty */
-#define	ST_TC		0x0040		/* Transmission complete */
-#define	ST_TXE		0x0080		/* Transmitter empty */
-#define	ST_BREAK	0x0100
-#define	ST_CTS		0x0200
-
-/* The baud rate.  This is subdivided from the bus clock.
- * It is as simple as dividing the bus clock by the baud
- * rate.  We could worry about it not dividing evenly, but
- * what can we do if it does not?
- */
-static void
-uart_init ( struct uart *up, int baud )
-{
-	/* 1 start bit, even parity */
-	up->cr1 = CR1_CONSOLE;
-	// up->cr1 = CR1_GPS;
-
-	up->cr2 = 0;
-	up->cr3 = 0;
-	up->gtp = 0;
-
-	up->baud = BUS_CLOCK / baud;
-
-#ifdef notdef
-	if ( up == UART2_BASE )
-	    up->baud = get_pclk1() / baud;
-	else
-	    up->baud = get_pclk2() / baud;
-#endif
-}
+static void	uart_init ( struct uart *, int );
 
 void
 serial_init ( void )
 {
 	gpio_uart_init ( UART3 );
 	uart_init ( UART3_BASE, 115200 );
+}
+
+static void
+uart_init ( struct uart *up, int baud )
+{
+	/* 1 start bit, even parity */
+	// XXX we never set any of this stuff.
+
+	/* Start fresh and disable the uart
+	 * This will set OVER8 = 0 (16x oversampling)
+	 */
+	up->cr1 = 0;
+
+	up->cr2 = 0;
+	up->cr3 = 0;
+	up->gtp = 0;
+
+	/* Divide the kerclk by 4 to get a 16Mhz clock
+	 * So the kerclk must be 64 Mhz.
+	 */
+	up->pre = PRE4;
+
+	/* This runs at 460800 with the prescaler out of the game */
+	up->baud = BUS_CLOCK / baud;
+
+	up->cr1 |= (CR1_TxE | CR1_RxE);
+
+	/* Enable the uart */
+	up->cr1 |= CR1_UE;
 }
 
 /* XXX locked onto UART3 */
@@ -134,28 +120,37 @@ console_putc ( int c )
 	if ( c == '\n' )
 	    console_putc ( '\r' );
 
-	while ( ! (up->status & ST_TXE) )
-	    ;
-	up->data = c;
+	while ( ! ( up->isr & ISR_TXFNF ) )
+		;
+	up->txdata = c;
 }
-
-/* Polled read (spins forever on console) */
-int
-console_getc ( void )
-{
-	struct uart *up = UART3_BASE;
-
-	while ( ! (up->status & ST_RXNE) )
-	    ;
-	return up->data & 0x7f;
-}
-
 
 void
 console_puts ( char *s )
 {
 	while ( *s )
 	    console_putc ( *s++ );
+}
+
+int
+console_getc ( void )
+{
+	struct uart *up = UART3_BASE;
+
+	while ( ! (up->isr & ISR_RXFNE) )
+	    ;
+	return up->rxdata & 0x7f;
+}
+
+/* Return 1 if something is waiting to be read */
+int
+console_check ( void )
+{
+	struct uart *up = UART3_BASE;
+
+	if ( up->isr & ISR_RXFNE)
+		return 1;
+	return 0;
 }
 
 /* Just for fun, recursive base 10 print

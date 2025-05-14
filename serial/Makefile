@@ -12,7 +12,8 @@ AS = $(TOOLS)-as
 
 # In truth the implicit fn warnings are good, but for the purpose of
 #  these demos, I can't be busy to set up prototypes as I should.
-COPTS = -mcpu=cortex-m7 -mthumb -Wno-implicit-function-declaration -Os
+#COPTS = -mcpu=cortex-m7 -mthumb -Wno-implicit-function-declaration -Os
+COPTS = -mcpu=cortex-m7 -mthumb -Wno-implicit-function-declaration
 
 
 # Use the -g flag if you intend to use gdb
@@ -24,6 +25,8 @@ CC = $(TOOLS)-gcc $(COPTS)
 
 #LD = $(TOOLS)-gcc
 LD = $(TOOLS)-ld.bfd
+LDOPTS = --no-warn-rwx-segments
+
 OBJCOPY = $(TOOLS)-objcopy
 DUMP = $(TOOLS)-objdump -d
 GDB = $(TOOLS)-gdb
@@ -36,7 +39,7 @@ serial.dump:	serial.elf
 	$(DUMP) serial.elf >serial.dump
 
 serial.elf: 	$(OBJS)
-	$(LD) -T serial.lds -o serial.elf $(OBJS)
+	$(LD) $(LDOPTS) -T serial.lds -o serial.elf $(OBJS)
 
 locore.o:	locore.s
 	$(AS) locore.s -o locore.o

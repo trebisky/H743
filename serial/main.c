@@ -90,6 +90,7 @@ struct gpio {
 };
 #endif
 
+#ifdef notdef
 /* For the F7 -- never used */
 struct power {
 	vu32 cr1;
@@ -104,6 +105,7 @@ struct power {
 	vu32 wkupfr;
 	vu32 wkupep;		/* 0x28 */
 };
+#endif
 
 #ifdef STM32F7
 #define RCC_BASE	(struct rcc *) 0x58024400
@@ -135,7 +137,12 @@ struct power {
 #define SLOWER	800
 #define SLOWER2	2000
 
-void
+#ifdef notdef
+/* Thingsrun slow when this is up here,
+ * but moved down below, we run normally (fast).
+ * Mighty wierd.
+ */
+static void
 delay ( void )
 {
 	// volatile int count = 1000 * FAST;
@@ -145,14 +152,8 @@ delay ( void )
 	while ( count-- )
 	    ;
 }
+#endif
 
-/* Only for H743 -- power control
- * Section 6 in the TRM
- */
-void
-power_setup ( void )
-{
-}
 
 /* We have to enable the GPIO in the RCC registers
  * before we can use it
@@ -224,8 +225,6 @@ led_init ( int bit )
 	int conf;
 	int shift;
 
-	power_setup ();
-
 	/* Turn on the GPIO in the RCC */
 	gpio_enable ();
 
@@ -260,18 +259,88 @@ led_off ( void )
 	gp->bsrr = off_mask;
 }
 
+char alpha[60];
+char num[20];
+
+static void
+string_init ( void )
+{
+	int i;
+	char *p;
+
+	for ( i=0; i<10; i++ )
+		num[i] = '0' + i;
+	num[10] = '\n';
+	num[11] = '\0';
+
+	p = alpha;
+	for ( i=0; i<26; i++ )
+		*p++ = 'A' + i;
+	for ( i=0; i<26; i++ )
+		*p++ = 'a' + i;
+	*p++ = '\n';
+	*p = '\0';
+}
+
+char *msg1 = "Got";
+
+static void
+check ( void )
+{
+	int x;
+
+	if ( ! console_check() )
+		return;
+
+	x = console_getc ();
+	// OK
+	// show_n ( msg1, x );
+	// poison
+	// show_n ( "Got:", x );
+	console_puts ( "Stop\n" );
+	show_n ( "Got:", x );
+
+	while ( ! console_check() )
+		;
+	x = console_getc ();
+	show_n ( "Got:", x );
+	// show_n ( msg1, x );
+	console_puts ( "Go\n" );
+}
+
+static void
+delay ( void )
+{
+	// volatile int count = 1000 * FAST;
+	// volatile unsigned int count = 1000 * SLOWER;
+	volatile unsigned int count = 1000 * SLOWER2;
+
+	while ( count-- )
+	    ;
+}
+
 void
 startup ( void )
 {
+	int n;
+
 	led_init ( LED_GPIO_PIN );
 	serial_init ();
+	string_init ();
 
+	n = 0;
 	for ( ;; ) {
+		show_n ( "Tick:", ++n );
 	    led_on ();
 		// console_putc ( 'X' );
+		console_puts ( alpha );
+		check ();
 	    delay ();
+		show_n ( "Tick:", ++n );
 	    led_off ();
 		// console_putc ( 'Y' );
+		console_puts ( num );
+		check ();
 	    delay ();
 	}
 }
