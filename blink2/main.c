@@ -229,6 +229,7 @@ gpio_enable ( void )
 #define LED3_GPIO_PIN	14	/* in GPIOB */
 #endif
 
+#ifdef notdef
 struct gpio *gp;
 u32 on_mask;
 u32 off_mask;
@@ -236,6 +237,19 @@ u32 off_mask;
 struct gpio *gpx;
 u32 xon_mask;
 u32 xoff_mask;
+#endif
+
+struct gpio *gp1;
+struct gpio *gp2;
+struct gpio *gp3;
+
+u32 on1_mask;
+u32 on2_mask;
+u32 on3_mask;
+
+u32 off1_mask;
+u32 off2_mask;
+u32 off3_mask;
 
 void
 led_init ( void )
@@ -248,59 +262,79 @@ led_init ( void )
 	/* Turn on the GPIO in the RCC */
 	gpio_enable ();
 
-	gp = GPIOB_BASE;
-	gpx = GPIOE_BASE;
+	gp1 = GPIOB_BASE;
+	gp2 = GPIOE_BASE;
+	gp3 = GPIOB_BASE;
 
-#if defined(STM32F4) || defined(STM32H7)
 	bit = LED1_GPIO_PIN;
 	shift = bit * 2;
-	gp->mode &= ~(3<<shift);
-	gp->mode |= (1<<shift);
-	gp->otype &= ~(1<<bit);
+	gp1->mode &= ~(3<<shift);
+	gp1->mode |= (1<<shift);
+	gp1->otype &= ~(1<<bit);
 
 	bit = LED3_GPIO_PIN;
 	shift = bit * 2;
-	gp->mode &= ~(3<<shift);
-	gp->mode |= (1<<shift);
-	gp->otype &= ~(1<<bit);
+	gp3->mode &= ~(3<<shift);
+	gp3->mode |= (1<<shift);
+	gp3->otype &= ~(1<<bit);
 
 	bit = LED2_GPIO_PIN;
 	shift = bit * 2;
-	gpx->mode &= ~(3<<shift);
-	gpx->mode |= (1<<shift);
-	gpx->otype &= ~(1<<bit);
-#else
-// STM32F1
-	shift = (bit - 8) * 4;
-	conf = gp->cr[1] & ~(0xf<<shift);
-	conf |= (MODE_OUT_2|CONF_GP_OD) << shift;
-	gp->cr[1] = conf;
-#endif
+	gp2->mode &= ~(3<<shift);
+	gp2->mode |= (1<<shift);
+	gp2->otype &= ~(1<<bit);
 
 //	on_mask = 1 << bit;
 //	off_mask = 1 << (bit+16);
 
-	mask = 1 << LED1_GPIO_PIN | 1 << LED3_GPIO_PIN;
-	on_mask = mask;
-	off_mask = mask << 16;
+	mask = 1 << LED1_GPIO_PIN;
+	on1_mask = mask;
+	off1_mask = mask << 16;
+
+	mask = 1 << LED3_GPIO_PIN;
+	on3_mask = mask;
+	off3_mask = mask << 16;
 
 	mask = 1 << LED2_GPIO_PIN;
-	xon_mask = mask;
-	xoff_mask = mask << 16;
+	on2_mask = mask;
+	off2_mask = mask << 16;
 }
 
 void
 led_on ( void )
 {
-	gp->bsrr = on_mask;
-	gpx->bsrr = xon_mask;
+	gp1->bsrr = on1_mask;
 }
 
 void
 led_off ( void )
 {
-	gp->bsrr = off_mask;
-	gpx->bsrr = xoff_mask;
+	gp1->bsrr = off1_mask;
+}
+
+static int state = 0;
+
+void
+led_next ( void )
+{
+	if ( state == 0 ) {
+		state = 1;
+		gp1->bsrr = on1_mask;
+		gp2->bsrr = off2_mask;
+		gp3->bsrr = off3_mask;
+	}
+	else if ( state == 1 ) {
+		state = 2;
+		gp1->bsrr = off1_mask;
+		gp2->bsrr = on2_mask;
+		gp3->bsrr = off3_mask;
+	}
+	else {
+		state = 0;
+		gp1->bsrr = off1_mask;
+		gp2->bsrr = off2_mask;
+		gp3->bsrr = on3_mask;
+	}
 }
 
 char alpha[60];
@@ -356,9 +390,9 @@ static void
 delay ( void )
 {
 	// volatile int count = 1000 * FAST;
-	volatile unsigned int count = 1000 * SLOWER;
+	// volatile unsigned int count = 1000 * SLOWER;
 	// gives about 1 hz
-	// volatile unsigned int count = 1000 * SLOWER2;
+	volatile unsigned int count = 1000 * SLOWER2;
 
 	while ( count-- )
 	    ;
@@ -378,13 +412,15 @@ startup ( void )
 	n = 0;
 	for ( ;; ) {
 		show_n ( "Tick:", ++n );
-	    led_on ();
+	    // led_on ();
+	    led_next ();
 		// console_putc ( 'X' );
 		console_puts ( alpha );
 		check ();
 	    delay ();
 		show_n ( "Tick:", ++n );
-	    led_off ();
+	    // led_off ();
+	    led_next ();
 		// console_putc ( 'Y' );
 		console_puts ( num );
 		check ();
