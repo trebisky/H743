@@ -2,10 +2,12 @@
  * Copied from /u1/Projects/STM32/F411/Archive/serial1/serial.c
  * 5-4-2025
  *
- * (c) Tom Trebisky  7-2-2017
+ * (c) Tom Trebisky  7-2-2017  10-1-2026
  *
- * Serial (uart) driver for the F411
+ * Serial (uart) driver for the F411 and H743
+ *
  * For the 411 this is section 19 of RM0383
+ * So far, no changes for the H743
  *
  * This began (2017) as a simple polled output driver for
  *  console messages on port 1
