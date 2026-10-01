@@ -31,7 +31,7 @@ OBJCOPY = $(TOOLS)-objcopy
 DUMP = $(TOOLS)-objdump -d
 GDB = $(TOOLS)-gdb
 
-OBJS = main.o serial.o gpio.o locore.o
+OBJS = main.o serial.o gpio.o rcc.o locore.o
 
 all: blink2.elf blink2.dump
 

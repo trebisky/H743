@@ -9,26 +9,22 @@
  * Basic GPIO driver for the F411 and H743
  *
  * Also includes LED routines
- *
- * XXXXXXXXXXXXXXXXXXx
- * XXXXXXXXXXXXXXXXXXx At this point no routines in this are even called!!
- * XXXXXXXXXXXXXXXXXXx
  */
 
 // #include "f411.h"
 #include "h743.h"
 
 typedef volatile unsigned int vu32;
-
-#ifdef WANT_LED
-/* Where is the LED ?? */
-#define LED_PIN		13	/* PC13 */
-#define LED_GPIO	GPIOC	/* PC13 */
-#endif
+typedef unsigned int u32;
 
 /* Here is the F411 gpio structure.
  *  very different from the F103.
+ * Same for the H743
+ *
+ * Section 11 of the TRM is gpio
+ * page 129 has the memory map for the H743
  */
+
 struct gpio {
 	vu32 mode;		/* 0x00 */
 	vu32 otype;		/* 0x04 */
@@ -42,25 +38,35 @@ struct gpio {
 	vu32 afh;		/* 0x24 */
 };
 
-#ifdef CHIP_F411
-#define GPIOA_BASE	(struct gpio *) 0x40020000
-#define GPIOB_BASE	(struct gpio *) 0x40020400
-#define GPIOC_BASE	(struct gpio *) 0x40020800
-#endif
-
 #define GPIOA_BASE	(struct gpio *) 0x58020000
 #define GPIOB_BASE	(struct gpio *) 0x58020400
 #define GPIOC_BASE	(struct gpio *) 0x58020800
-#define GPIOD_BASE	(struct gpio *) 0x58020C00
+#define GPIOD_BASE	(struct gpio *) 0x58020c00
+#define GPIOE_BASE	(struct gpio *) 0x58021000
+#define GPIOF_BASE	(struct gpio *) 0x58021400
+#define GPIOG_BASE	(struct gpio *) 0x58021800
+#define GPIOH_BASE	(struct gpio *) 0x58021c00
+#define GPIOI_BASE	(struct gpio *) 0x58022000
+#define GPIOJ_BASE	(struct gpio *) 0x58022400
+#define GPIOK_BASE	(struct gpio *) 0x58022800
 
 static struct gpio *gpio_bases[] = {
-    GPIOA_BASE, GPIOB_BASE, GPIOC_BASE, GPIOD_BASE
+    GPIOA_BASE, GPIOB_BASE, GPIOC_BASE, GPIOD_BASE,
+    GPIOE_BASE, GPIOF_BASE, GPIOG_BASE, GPIOH_BASE,
+    GPIOI_BASE, GPIOJ_BASE, GPIOK_BASE
 };
+
+#ifdef notdef
+#define MODE_OUT_2	0x02	/* Output, 2 Mhz */
+
+#define CONF_GP_UD	0x0	/* Pull up/down */
+#define CONF_GP_OD	0x4	/* Open drain */
+#endif
 
 /* Change alternate function setting for a pin
  * These are 4 bit fields. All initially 0.
  */
-void
+static void
 gpio_af ( int gpio, int pin, int val )
 {
 	struct gpio *gp;
@@ -80,7 +86,7 @@ gpio_af ( int gpio, int pin, int val )
 }
 
 /* This is a 2 bit field */
-void
+static void
 gpio_mode ( int gpio, int pin, int val )
 {
 	struct gpio *gp;
@@ -93,7 +99,7 @@ gpio_mode ( int gpio, int pin, int val )
 }
 
 /* kludge for now */
-void
+static void
 gpio_uart ( int gpio, int pin, int val )
 {
 	struct gpio *gp;
@@ -110,7 +116,9 @@ gpio_uart ( int gpio, int pin, int val )
 	gp->pupd &= ~(3<<shift);
 }
 
-/* For the H743, we take short cuts for now */
+/* For the H743, we take short cuts for now.
+ * -- called from serial.c
+ */
 void
 gpio_uart_init ( int uart )
 {
@@ -123,81 +131,122 @@ gpio_uart_init ( int uart )
 	    gpio_uart ( GPIOD, 9, 99 );
 }
 
-#ifdef notdef
-/* Note that UART1 can be moved around a lot.
- * I make a choice here.
- * I suppose a general interface would allow this to
- *  be selected via a call argument.
- */
-void
-gpio_uart_init ( int uart )
-{
-	if ( uart == UART1 ) {
-	    gpio_af ( GPIOA, 9, 7 );	/* Tx */
-	    gpio_mode ( GPIOA, 9, 2 );	/* Tx */
-	    gpio_uart ( GPIOA, 9, 99 );	/* Tx */
-
-	    gpio_af ( GPIOA, 10, 7 );	/* Rx */
-	    gpio_mode ( GPIOA, 10, 2 );
-	    gpio_uart ( GPIOA, 10, 99 );
-	    // gpio_af ( GPIOA, 15, 7 ); /* Tx */
-	    // gpio_af ( GPIOB, 3, 7 );	/* Rx */
-	    // gpio_af ( GPIOB, 6, 7 )	/* Tx */
-	    // gpio_af ( GPIOB, 7, 7 );	/* Rx */
-	} else if ( uart == UART2 ) {
-	    gpio_af ( GPIOA, 2, 7 );	/* Tx */
-	    gpio_af ( GPIOA, 3, 7 );	/* Rx */
-	} else { /* UART3 */
-	    gpio_af ( GPIOC, 6, 7 );	/* Tx */
-	    gpio_af ( GPIOC, 7, 7 );	/* Rx */
-	}
-}
-#endif
-
 /* ========================================================== */
 
-#ifdef WANT_LED
-static struct gpio *led_gp;
-static unsigned long on_mask;
-static unsigned long off_mask;
+/* The H743 Nucleo board has 3 LED:
+ *  LD1 - Green - PB0 (PA5 via alternate jumper)
+ *  LD2 - Orange (yellow) - PE1
+ *  LD3 - Red - PB14
+*/
 
-/* on the H743 we have 3 user leds:
- *
- *  LED1 is on PB0 -- we blinked this in blink1
- *  LED2 is on PE1 -- why?
- *  LED3 is on PB14
- */
+#define LED1_GPIO_PIN	0	/* in GPIOB */
+#define LED2_GPIO_PIN	1	/* in GPIOE */
+#define LED3_GPIO_PIN	14	/* in GPIOB */
+
+#ifdef notdef
+struct gpio *gp;
+u32 on_mask;
+u32 off_mask;
+
+struct gpio *gpx;
+u32 xon_mask;
+u32 xoff_mask;
+#endif
+
+struct gpio *gp1;
+struct gpio *gp2;
+struct gpio *gp3;
+
+u32 on1_mask;
+u32 on2_mask;
+u32 on3_mask;
+
+u32 off1_mask;
+u32 off2_mask;
+u32 off3_mask;
 
 void
 led_init ( void )
 {
 	int conf;
 	int shift;
-	int pin = LED_PIN;
+	int mask;
+	int bit;
 
-	// led_gp = GPIOC_BASE;
-	led_gp = gpio_bases[LED_GPIO];
+	gp1 = GPIOB_BASE;
+	gp2 = GPIOE_BASE;
+	gp3 = GPIOB_BASE;
 
-	shift = pin * 2;
-	led_gp->mode &= ~(3<<shift);
-	led_gp->mode |= (1<<shift);
-	led_gp->otype &= ~(1<<pin);
+	bit = LED1_GPIO_PIN;
+	shift = bit * 2;
+	gp1->mode &= ~(3<<shift);
+	gp1->mode |= (1<<shift);
+	gp1->otype &= ~(1<<bit);
 
-	off_mask = 1 << pin;
-	on_mask = 1 << (pin+16);
+	bit = LED3_GPIO_PIN;
+	shift = bit * 2;
+	gp3->mode &= ~(3<<shift);
+	gp3->mode |= (1<<shift);
+	gp3->otype &= ~(1<<bit);
+
+	bit = LED2_GPIO_PIN;
+	shift = bit * 2;
+	gp2->mode &= ~(3<<shift);
+	gp2->mode |= (1<<shift);
+	gp2->otype &= ~(1<<bit);
+
+//	on_mask = 1 << bit;
+//	off_mask = 1 << (bit+16);
+
+	mask = 1 << LED1_GPIO_PIN;
+	on1_mask = mask;
+	off1_mask = mask << 16;
+
+	mask = 1 << LED3_GPIO_PIN;
+	on3_mask = mask;
+	off3_mask = mask << 16;
+
+	mask = 1 << LED2_GPIO_PIN;
+	on2_mask = mask;
+	off2_mask = mask << 16;
 }
 
 void
 led_on ( void )
 {
-	led_gp->bsrr = on_mask;
+	gp1->bsrr = on1_mask;
 }
 
 void
 led_off ( void )
 {
-	led_gp->bsrr = off_mask;
+	gp1->bsrr = off1_mask;
 }
-#endif
+
+static int state = 0;
+
+void
+led_next ( void )
+{
+	if ( state == 0 ) {
+		state = 1;
+		gp1->bsrr = on1_mask;
+		gp2->bsrr = off2_mask;
+		gp3->bsrr = off3_mask;
+	}
+	else if ( state == 1 ) {
+		state = 2;
+		gp1->bsrr = off1_mask;
+		gp2->bsrr = on2_mask;
+		gp3->bsrr = off3_mask;
+	}
+	else {
+		state = 0;
+		gp1->bsrr = off1_mask;
+		gp2->bsrr = off2_mask;
+		gp3->bsrr = on3_mask;
+	}
+}
+
 
 /* THE END */
