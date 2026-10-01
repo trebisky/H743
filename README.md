@@ -10,7 +10,8 @@ Adventures with a STM32H743 Nucleo board
 
 9-30-2026
 
-2. blink2 - blink all 3 LED, not just LED1 (and serial output)
+1. blink2 - blink all 3 LED, not just LED1 (and serial output)
+2. inter1 - get an interrupt using systick
 
 [my notes on the H743 Nucleo](http://cholla.mmto.org/stm32all/h743)
 
