@@ -40,7 +40,8 @@ locore.o:	locore.s
 blink.o:	blink.c
 	$(CC) -c blink.c
 
-OCDCFG = -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32h7x.cfg
+#OCDCFG = -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32h7x.cfg
+OCDCFG = -f interface/stlink.cfg -f target/stm32h7x.cfg
 
 ocd:
 	openocd $(OCDCFG)

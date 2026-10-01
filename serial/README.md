@@ -1,12 +1,6 @@
-A Blink demo for the H743
+A serial demo for the H743
 
-I copied my basic "blink1" demo from my F411 projects.
+I copied my the simple blink1 demo to start this.
 
-What do we need to change?
-
-It turns out quite a lot was different for the F411/F103
-The base addresses for the RCC and GPIO are different.
-The RCC register layout is quite different.
-The GPIO registers are entirely different.
-
-I didn't need to set up bus clocks or any of that.
+We get a serial port to work,
+and we retain blinking LED1

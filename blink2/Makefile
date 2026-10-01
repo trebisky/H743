@@ -1,8 +1,8 @@
-# Makefile for serial demo
+# Makefile for second blink demo
 #
 # First code for the H743
 # based on my makefile for F411 bare metal
-# Tom Trebisky  5-2-2-25
+# Tom Trebisky  5-2-2025  9-30-2026
 
 TOOLS = arm-none-eabi
 
@@ -33,13 +33,13 @@ GDB = $(TOOLS)-gdb
 
 OBJS = main.o serial.o gpio.o locore.o
 
-all: serial.elf serial.dump
+all: blink2.elf blink2.dump
 
-serial.dump:	serial.elf
-	$(DUMP) serial.elf >serial.dump
+blink2.dump:	blink2.elf
+	$(DUMP) blink2.elf >blink2.dump
 
-serial.elf: 	$(OBJS)
-	$(LD) $(LDOPTS) -T serial.lds -o serial.elf $(OBJS)
+blink2.elf: 	$(OBJS)
+	$(LD) $(LDOPTS) -T blink2.lds -o blink2.elf $(OBJS)
 
 locore.o:	locore.s
 	$(AS) locore.s -o locore.o
@@ -57,14 +57,14 @@ OCDCFG = -f interface/stlink.cfg -f target/stm32h7x.cfg
 ocd:
 	openocd $(OCDCFG)
 
-flash:  serial.elf
-	openocd $(OCDCFG) -c "program serial.elf verify reset exit"
+flash:  blink2.elf
+	openocd $(OCDCFG) -c "program blink2.elf verify reset exit"
 
 gdb:
-	$(GDB) --eval-command="target remote localhost:3333" serial.elf
+	$(GDB) --eval-command="target remote localhost:3333" blink2.elf
 
 gdbtui:
-	$(GDB) -tui --eval-command="target remote localhost:3333" serial.elf
+	$(GDB) -tui --eval-command="target remote localhost:3333" blink2.elf
 
 clean:
-	rm -f *.o serial.elf serial.dump
+	rm -f *.o blink2.elf blink2.dump
