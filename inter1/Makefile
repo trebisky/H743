@@ -31,7 +31,7 @@ OBJCOPY = $(TOOLS)-objcopy
 DUMP = $(TOOLS)-objdump -d
 GDB = $(TOOLS)-gdb
 
-OBJS = main.o serial.o gpio.o rcc.o locore.o
+OBJS = main.o serial.o gpio.o systick.o rcc.o locore.o
 
 all: inter1.elf inter1.dump
 

@@ -88,27 +88,66 @@ check ( void )
 	console_puts ( "Go\n" );
 }
 
+static int n_tick;
+
+static void
+run_loop ( void )
+{
+	show_n ( "Tick:", ++n_tick );
+	led_next ();
+	// check ();
+}
+
+static int mycount = 0;
+
+/* This gets called at 1000 Hz.
+ */
+#define SYSDIV 1000
+static void
+systick_fn ( void )
+{
+	// console_puts ( "-" );
+
+	mycount++;
+	if ( mycount >= SYSDIV ) {
+		// console_puts ( "$" );
+		run_loop ();
+		mycount = 0;
+	}
+}
+
 void
 startup ( void )
 {
-	int n;
-
 	rcc_init ();
+	systick_init ();
+
 	led_init ();
 	serial_init ();
 
 	string_init ();
 
-	n = 0;
+	console_puts ( "Interrupt demo starting\n" );
+
+	/* No bss init yet, so we should set these. */
+	mycount = 0;
+	n_tick = 0;
+
+	systick_hookup ( systick_fn );
+
+	/* spin */
+	for ( ;; ) ;
+
+#ifdef notdef
 	for ( ;; ) {
-		show_n ( "Tick:", ++n );
+		show_n ( "Tick:", ++n_tick );
 	    // led_on ();
 	    led_next ();
 		// console_putc ( 'X' );
 		console_puts ( alpha );
 		check ();
 	    delay ();
-		show_n ( "Tick:", ++n );
+		show_n ( "Tick:", ++n_tick );
 	    // led_off ();
 	    led_next ();
 		// console_putc ( 'Y' );
@@ -116,6 +155,7 @@ startup ( void )
 		check ();
 	    delay ();
 	}
+#endif
 }
 
 /* THE END */

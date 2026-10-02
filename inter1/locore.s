@@ -32,7 +32,7 @@
 .word   spin        /* 12 Debug monitor */
 .word   spin        /* 13 RESERVED */
 .word   spin        /* 14 PendSV */
-.word   spin        /* 15 SysTick */
+.word   systick_handler /* 15 SysTick */
 
 @ Now our list of IRQ
 .word   spin        /* IRQ 0 -- WWDG1 */

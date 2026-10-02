@@ -1,5 +1,5 @@
 /* Tom Trebisky (c) 11-22-2020
- * Tom Trebisky (c) 5-22-2025
+ * Tom Trebisky (c) 5-22-2025  10-1-2026
  *
  * h743.h
  */
@@ -16,3 +16,8 @@
 #define GPIOD	3
 #define GPIOE	4
 
+/* pointer to void function */
+typedef void (*vfptr) ( void );
+typedef void (*ifptr) ( int );
+
+/* THE END */

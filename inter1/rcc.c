@@ -110,4 +110,21 @@ rcc_init ( void )
 #endif
 }
 
+/* Our first guess was 96 Mhz, but
+ *  stopwatch indicated more like 68 Mhz.
+ * Searching says 64 Mhz "out of the box" on
+ * all the H7 parts.  It is running on the internal
+ * HSI RC oscillator, with all the PLL disabled/bypassed.
+ */
+#define CLOCK_64
+// #define PCLK1           48000000
+// #define PCLK2           96000000
+#define CPU_HZ          64000000
+
+int
+get_cpu_hz ( void )
+{
+    return CPU_HZ;
+}
+
 /* THE END */
