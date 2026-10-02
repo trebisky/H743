@@ -12,6 +12,7 @@ Adventures with a STM32H743 Nucleo board
 
 1. blink2 - blink all 3 LED, not just LED1 (and serial output)
 2. inter1 - get an interrupt using systick
+3. printf - add printf -- and bss initialization
 
 [my notes on the H743 Nucleo](http://cholla.mmto.org/stm32all/h743)
 
