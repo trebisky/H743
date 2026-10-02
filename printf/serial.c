@@ -127,6 +127,17 @@ console_putc ( int c )
 	up->txdata = c;
 }
 
+/* identical to console_puts() - 
+ *  this is called by printf()
+ */
+void
+uart_puts ( char *s )
+{
+	while ( *s )
+	    console_putc ( *s++ );
+}
+
+
 void
 console_puts ( char *s )
 {

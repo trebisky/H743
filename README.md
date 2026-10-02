@@ -14,5 +14,10 @@ Adventures with a STM32H743 Nucleo board
 2. inter1 - get an interrupt using systick
 3. printf - add printf -- and bss initialization
 
+I expect this to be a stepping stone to working with the H755 board
+which sports two cores (one M7 and one M4).  I suspect that if the
+second M4 core is just ignored, the H755 will work exactly like
+the H743.  We shall see.
+
 [my notes on the H743 Nucleo](http://cholla.mmto.org/stm32all/h743)
 

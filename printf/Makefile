@@ -13,7 +13,10 @@ AS = $(TOOLS)-as
 # In truth the implicit fn warnings are good, but for the purpose of
 #  these demos, I can't be busy to set up prototypes as I should.
 #COPTS = -mcpu=cortex-m7 -mthumb -Wno-implicit-function-declaration -Os
-COPTS = -mcpu=cortex-m7 -mthumb -Wno-implicit-function-declaration
+#COPTS = -mcpu=cortex-m7 -mthumb -Wno-implicit-function-declaration
+# the no-builtin switch is needed, otherwise the compiler tries to
+# do clever optimizations like turning simple printf() into puts().
+COPTS = -mcpu=cortex-m7 -mthumb -fno-builtin -Wno-implicit-function-declaration
 
 
 # Use the -g flag if you intend to use gdb
@@ -31,7 +34,7 @@ OBJCOPY = $(TOOLS)-objcopy
 DUMP = $(TOOLS)-objdump -d
 GDB = $(TOOLS)-gdb
 
-OBJS = init.o main.o serial.o gpio.o systick.o rcc.o locore.o
+OBJS = init.o main.o prf.o serial.o gpio.o systick.o rcc.o locore.o
 
 all: demo.elf demo.dump
 
