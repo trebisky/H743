@@ -52,9 +52,15 @@ OCDCFG = -f interface/stlink.cfg -f target/stm32h7x.cfg
 ocd:
 	openocd $(OCDCFG)
 
+# I ran into a weird scenatio where I got the error
+#  Warn : target stm32h7x.cpu0 examination failed
+#   ** Unable to reset target **
+# I fixed it by holding the reset button and typing "make flash",
+#  then a subsequent "make flash" worked.
+
 flash:  demo.elf
-	#openocd $(OCDCFG) -c "reset_config none program demo.elf verify reset exit"
-	openocd $(OCDCFG) -c "reset_config none" -c "program demo.elf verify reset exit"
+	#openocd $(OCDCFG) -c "reset_config none" -c "program demo.elf verify reset exit"
+	openocd $(OCDCFG) -c "program demo.elf verify reset exit"
 
 gdb:
 	$(GDB) --eval-command="target remote localhost:3333" demo.elf
