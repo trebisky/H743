@@ -6,6 +6,8 @@
 typedef volatile unsigned int vu32;
 typedef unsigned int u32;
 
+#define BIT(x)	(1<<(x))
+
 /* Section 11 of the TRM is gpio
  * page 129 has the memory map for the H743
  */
@@ -77,6 +79,8 @@ struct power {
  */
 // #define RCC_BASE	(struct rcc *) 0x58024400
 
+#define AHB1EN 0x580244d8
+#define AHB2EN 0x580244dc
 #define AHB4EN 0x580244e0
 #define APB1EN 0x580244e8
 
@@ -102,6 +106,14 @@ rcc_init ( void )
 
 	en = (vu32 *) APB1EN;
 	*en |= UART3_ENABLE;
+
+#define RND_RESET   BIT(6)
+#define RND_ENA     BIT(6)
+    // Get the true random number gadget going
+    // rp->ahb2rstr |= RND_RESET;
+    // rp->ahb2enr |= RND_ENA;
+	en = (vu32 *) AHB2EN;
+    *en |= RND_ENA;
 
 #ifdef notdef
 	// TRM says these are all zero (not in reset)

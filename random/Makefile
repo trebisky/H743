@@ -42,8 +42,11 @@ demo.dump:	demo.elf
 demo.elf: 	$(OBJS)
 	$(LD) $(LDOPTS) -T h743.lds -o demo.elf $(OBJS)
 
-locore.o:	locore.s
-	$(AS) locore.s -o locore.o
+#locore.o:	locore.s
+#	$(AS) locore.s -o locore.o
+
+locore.o:	locore.S
+	$(CC) -c locore.S -o locore.o
 
 #OCDCFG = -f /usr/share/openocd/scripts/interface/stlink-v2.cfg -f /usr/share/openocd/scripts/target/stm32h7x.cfg
 #OCDCFG = -f interface/stlink-v2.cfg -f target/stm32h7x.cfg
@@ -57,6 +60,8 @@ ocd:
 #   ** Unable to reset target **
 # I fixed it by holding the reset button and typing "make flash",
 #  then a subsequent "make flash" worked.
+# Also suggested was slowing the adapter speed like so:
+# openocd -f interface/stlink.cfg -c "adapter speed 1000" -f target/stm32h7x.cfg -c "reset_config none"
 
 flash:  demo.elf
 	#openocd $(OCDCFG) -c "reset_config none" -c "program demo.elf verify reset exit"

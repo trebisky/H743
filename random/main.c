@@ -4,13 +4,13 @@
  * (c) Tom Trebisky  5-2-2025 (H743)
  * (c) Tom Trebisky  10-1-2026 (H743)
  *
- * This was taken from the blink1 demo.
+ * Demo to test the hardware random number generator
+ *  (RNG)
+ * This was taken from the print demo.
  *
- * Changes to port this from F411 to H743
- *
- * LED on different pin.
- * all base addresses are different.
- * RCC is totally different.
+ * The random number code works fine on the H747, but here I get
+ * a clock too slow error.  However, I have done almost nothing
+ * to set up the clocks, so that is not that surprising.
  */
 
 #include "protos.h"
