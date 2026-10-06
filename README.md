@@ -13,6 +13,7 @@ Adventures with a STM32H743 Nucleo board
 1. blink2 - blink all 3 LED, not just LED1 (and serial output)
 2. inter1 - get an interrupt using systick
 3. printf - add printf -- and bss initialization
+4. random - add random (does not work without clock setup)
 
 I expect this to be a stepping stone to working with the H755 board
 which sports two cores (one M7 and one M4).  I suspect that if the

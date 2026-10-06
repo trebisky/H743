@@ -23,9 +23,7 @@ typedef unsigned int u32;
 #define RCC_BASE	(struct rcc *) 0x58024400
 #define PWR_BASE	(struct power *) 0x58024800
 
-// I am lazy and cheat for now, not using a struct for the RCC
-
-/* The following take from my H747 project --
+/* The following taken from my H747 project --
  * RCC registers are in 4 sections with banking and rules
  * about access from CPU1 or CPU2
  */
@@ -120,21 +118,6 @@ struct power {
  */
 
 /* See section 8 of the TRM for RCC details */
-
-#ifdef notdef
-/* We are LAZY here and just pick out the
- * RCC registers we need for now.
- */
-// #define RCC_BASE	(struct rcc *) 0x58024400
-
-// RCC_AHB4ENR is at offset 0xE0
-// I am cheating with the following
-
-#define AHB1EN 0x580244d8
-#define AHB2EN 0x580244dc
-#define AHB4EN 0x580244e0
-#define APB1EN 0x580244e8
-#endif
 
 #define UART3_ENABLE	0x40000
 

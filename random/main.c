@@ -83,7 +83,8 @@ startup ( void )
 
 	systick_hookup ( systick_fn );
 
-	for ( i=0; i<10; i++ ) {
+	// for ( i=0; i<10; i++ ) {
+	for ( i=0; i<2; i++ ) {
 		val = random_next ();
 		printf ( "Random: %d\n", val );
 	}
