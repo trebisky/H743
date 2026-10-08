@@ -26,6 +26,8 @@ typedef unsigned int u32;
 #define RCC_BASE	(struct rcc *) 0x58024400
 
 static void pwr_setup ( void );
+static void flash_setup ( void );
+static void flash_show ( void );
 
 /* The following taken from my H747 project --
  * RCC registers are in 4 sections with banking and rules
@@ -184,6 +186,8 @@ rcc_show ( void )
 	show_reg ( "RCC d1cfgr", &rp->d1cfgr );
 	show_reg ( "RCC d2cfgr", &rp->d2cfgr );
 	show_reg ( "RCC d3cfgr", &rp->d3cfgr );
+
+	flash_show ();
 }
 
 /* We have to enable the GPIO in the RCC registers
@@ -717,6 +721,7 @@ rcc_init ( void )
 {
 	rcc_enables ();
 	pwr_setup ();
+	flash_setup ();
 
 	// rcc_show ();
 
@@ -828,6 +833,43 @@ pwr_setup ( void )
 		;
 
     /* smps is already enabled */
+}
+
+// ==================================================================
+// ==================================================================
+
+/* This is documented in section 4 of the TRM for the H743
+ * There are many more registers.
+ * We only need to access the first, the ACR
+ *  Access Control Register
+ *  to set wait states.
+ */
+
+struct flash {
+    vu32    acr;
+};
+
+#define FLASH_BASE	(struct flash *) 0x52002000
+
+/* ACR is 0x37 on power up */
+static void
+flash_show ( void )
+{
+	struct flash *fp = FLASH_BASE;
+
+	show_reg ( "Flash acr", &fp->acr );
+}
+
+/* Need 4 wait states to run at 480 Mhz
+ * (powers up set to 7, so this will be even better.
+ */
+static void
+flash_setup ( void )
+{
+	struct flash *fp = FLASH_BASE;
+
+	fp->acr &= ~0xf;
+	fp->acr |= 4;
 }
 
 /* THE END */
