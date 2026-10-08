@@ -230,9 +230,12 @@ led_off ( void )
 
 static int state = 0;
 
+/* Typically called on each systick
+ */
 void
 led_next ( void )
 {
+#ifdef TRIPLE
 	if ( state == 0 ) {
 		state = 1;
 		gp1->bsrr = on1_mask;
@@ -251,6 +254,15 @@ led_next ( void )
 		gp2->bsrr = off2_mask;
 		gp3->bsrr = on3_mask;
 	}
+#else
+	if ( state == 0 ) {
+		state = 1;
+		gp1->bsrr = on1_mask;
+	} else {
+		state = 0;
+		gp1->bsrr = off1_mask;
+	}
+#endif
 }
 
 

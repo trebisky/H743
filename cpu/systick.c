@@ -140,7 +140,8 @@ systick_init ( void )
 	systick_count = 0;
 	systick_hook = (vfptr) 0;
 
-	rate = get_cpu_hz () / SYSTICK_RATE;
+	// rate = get_cpu_hz () / SYSTICK_RATE;
+	rate = 240000000 / SYSTICK_RATE;
 
 	sp->csr = CSR_SYSCLK;	/* stop the timer */
 	sp->reload = rate - 1;

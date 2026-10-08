@@ -63,6 +63,7 @@ systick_fn ( void )
 void
 idle ( void )
 {
+	printf ( "Idle (spinning with wfi)\n" );
     for ( ;; ) {
         /*
         irq_disable ();
@@ -80,14 +81,24 @@ startup ( void )
 	u32 val;
 
 	printf ( "H743 demo starting\n" );
+	rcc_show ();
 
 	systick_hookup ( systick_fn );
 
+#ifdef notdef
 	// for ( i=0; i<10; i++ ) {
 	for ( i=0; i<2; i++ ) {
 		val = random_next ();
 		printf ( "Random: %d\n", val );
 	}
+
+	for ( ;; ) {
+		printf ( "AB" );
+	}
+#endif
+	printf ( "Encyclopedia\n" );
+	val = get_cpu_hz () / (1000 * 1000);
+	printf ( "Cpu running at %d Hz\n", val );
 
 	/* spin */
 	idle ();

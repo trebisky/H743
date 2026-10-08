@@ -58,9 +58,11 @@ struct uart {
 #define ISR_TXFNF	BIT(7)		/* Tx Fifo not full, OK to write */
 #define ISR_RXFNE	BIT(5)		/* Rx Fifo not empty, data to read */
 
-/* A wild first guess */
-#define BUS_CLOCK	16000000
-
+/* A wild first guess
+ * uart1 receives pclk2, which is 64 Mhz on power up.
+ * The uart has a programmable divider, which we set to 4
+ * to get this 16 Mhz clock.
+ */
 #define UART1   1
 #define UART2   2
 #define UART3   3
@@ -87,6 +89,8 @@ serial_init ( void )
 static void
 uart_init ( struct uart *up, int baud )
 {
+	int clock;
+
 	/* 1 start bit, even parity */
 	// XXX we never set any of this stuff.
 
@@ -104,8 +108,12 @@ uart_init ( struct uart *up, int baud )
 	 */
 	up->pre = PRE4;
 
-	/* This runs at 460800 with the prescaler out of the game */
-	up->baud = BUS_CLOCK / baud;
+	// only valid before we configure the RCC
+	// #define UART_CLOCK	16000000
+	// up->baud = UART_CLOCK / baud;
+
+	clock = get_pclk2_hz () / 4;
+	up->baud = clock / baud;
 
 	up->cr1 |= (CR1_TxE | CR1_RxE);
 
