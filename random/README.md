@@ -11,4 +11,7 @@ I am going to leave this "as is" (i.e. not working)
 and move on to work on clock setup.  Then I will
 revisit this.
 
+With no extra effort, in the next demo ("cpu") this
+just works after I set up clocks in the RCC.
+
 10-4-2026

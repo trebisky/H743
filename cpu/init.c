@@ -59,7 +59,7 @@ stm_init ( void )
 	led_init ();
 
 	serial_init ();
-	// random_init ();
+	random_init ();
 
 	/* Call the user code */
 	startup ();

@@ -14,6 +14,7 @@ Adventures with a STM32H743 Nucleo board
 2. inter1 - get an interrupt using systick
 3. printf - add printf -- and bss initialization
 4. random - add random (does not work without clock setup)
+5. cpu    - get cpu to run at 480 Mhz, now random just works
 
 I expect this to be a stepping stone to working with the H755 board
 which sports two cores (one M7 and one M4).  I suspect that if the

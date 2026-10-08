@@ -34,8 +34,11 @@ run_loop ( void )
 static int mycount;
 
 /* This gets called at 1000 Hz.
+ * We flip the LED every 0.5 seconds
+ *  to get a 1 Hz blink rate.
  */
-#define SYSDIV 1000
+#define SYSDIV 500
+
 static void
 systick_fn ( void )
 {
@@ -85,18 +88,19 @@ startup ( void )
 
 	systick_hookup ( systick_fn );
 
-#ifdef notdef
-	// for ( i=0; i<10; i++ ) {
-	for ( i=0; i<2; i++ ) {
+	// for ( i=0; i<2; i++ ) {
+	for ( i=0; i<10; i++ ) {
 		val = random_next ();
 		printf ( "Random: %d\n", val );
 	}
 
+#ifdef notdef
 	for ( ;; ) {
 		printf ( "AB" );
 	}
-#endif
 	printf ( "Encyclopedia\n" );
+#endif
+
 	val = get_cpu_hz () / (1000 * 1000);
 	printf ( "Cpu running at %d Hz\n", val );
 
